@@ -8,16 +8,39 @@ from dotenv import load_dotenv
 load_dotenv()
 # Get the connection string from the environment variable
 connection_string = os.getenv('DATABASE_URL')
+api_key = os.getenv('API_KEY')
 app = Flask(__name__)
 
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
 
+# Method to verify API key for authorization
+def verify_auth_header(header_api_key):
+        print("Testing authorization.")
+        if (header_api_key != api_key):
+            print("Unauthorized request")
+            response_body = {
+                 "status": "failed",
+                 "code": 401,
+                 "content": "Unauthorized request."
+            }
+            return make_response(jsonify(response_body), 401)
+        else:
+             print("Authorized request.")
+             return None
+
 
 @app.route("/user")
 def createUser():
     try:
+        # Check the API key in request headers for authentication
+        header_api_key = request.headers.get("X-API-Key")
+        verify_auth_header(header_api_key)
+        auth_check = verify_auth_header(header_api_key)
+        if auth_check != None:
+            return auth_check
+
         user_id = request.args.get('id')
         user_username = request.args.get('username')
         connection_pool = pool.SimpleConnectionPool(
