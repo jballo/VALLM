@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
     const body = await request.json();
     const { text } = body;
-    console.log("Text: ", text);
+    console.log("Text in API route: ", text);
 
     const apiSecret = request.headers.get("X-API-SECRET");
 
@@ -15,15 +15,14 @@ export async function POST(request: Request) {
 
     
     try {
-        const url = new URL(process.env.GENERATE_RESPONSE_ENDPOINT || "http://127.0.0.1:5000/");
-        url.searchParams.set("prompt", text);
+        const url = new URL(process.env.GENERATE_RESPONSE_ENDPOINT || "http://127.0.0.1:5000/response");
+        url.searchParams.set("text", text);
         const response = await fetch(url.toString(),{
-                method: "GET",
+                method: "POST",
                 headers: {
                     "X-API-Key": process.env.API_KEY || "",
                     Accept: "multipart/mixed"
-                },
-                body: JSON.stringify({ text })
+                }
             }
         );
 
@@ -35,10 +34,15 @@ export async function POST(request: Request) {
             );
         }
 
+        const result = await response.json();
+
+        console.log("Result: ", result);
+
+
 
         return NextResponse.json({
             success: true,
-            content: "hello"
+            responses: result.content
         });
     } catch (error) {
         console.error("Error processing request: ", error);

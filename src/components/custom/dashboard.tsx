@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Header from "./header";
 import PromptForm from "./promptform";
 import TextComparison from "./textComparison";
@@ -20,12 +21,16 @@ interface DashboardProps {
 }
 
 
+
 export default function Dashboard({createResponse}: DashboardProps) {
+    const [responses, setResponses] = useState<LLMResponses[]>([]);
+
+
     return (
         <div className="w-full min-h-screen p-12 flex flex-col gap-6">
               <Header />
-              <PromptForm />
-              <TextComparison />
+              <PromptForm createResponse={createResponse} setResponses={setResponses}/>
+              <TextComparison responses={responses} />
         </div>
     );
 }
