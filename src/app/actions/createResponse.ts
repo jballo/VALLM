@@ -2,10 +2,11 @@
 
 
 export async function createResponse(text: string) {
-    console.log(text);
+    console.log("Text in action: ", text);
     try {
-        const url = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3000';
-        const response = await fetch(`${url}/create-response/`, {
+        // const url = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3000';
+        const url = 'http://localhost:3000';
+        const response = await fetch(`${url}/api/create-response/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -14,8 +15,11 @@ export async function createResponse(text: string) {
             body: JSON.stringify({ text })
         });
 
-        const result = await response.json();
-        console.log("Result: ", result);
+        if(!response.ok) {
+            throw new Error(`HTTPS error! status: ${response.status}`);
+        }
+
+        const result = response.json();
 
         return result;
     } catch (error) {
