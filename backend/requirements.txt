@@ -5,3 +5,4 @@ psycopg2==2.9.10
 groq==0.13.1
 Flask-Cors==5.0.0
 openai==1.58.1
+deepeval==2.1.1
