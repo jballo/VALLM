@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import groq
 from groq import Groq
 from openai import OpenAI
+from deepeval.test_case import LLMTestCase, LLMTestCaseParams
+from deepeval.metrics import GEval
 
 # Load .env file
 load_dotenv()
@@ -44,6 +46,18 @@ def verify_auth_header(header_api_key):
              print("Authorized request.")
              return None
 
+def calculate_coherence_score(prompt, actual_output):
+    test_case = LLMTestCase(input=prompt, actual_output=actual_output)
+    coherence_metric = GEval(
+        name="Coherence",
+        criteria="Coherence - the collective quality of all sentences in the actual output",
+        evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
+    )
+
+    coherence_metric.measure(test_case)
+    print("Coherence score: ", coherence_metric.score)
+    print("Coherence reason: ", coherence_metric.reason)
+    print("\n\n\n\n")
 
 @app.route("/user")
 def createUser():
@@ -158,12 +172,20 @@ def generate_response():
         print("\n\n----------------------------\n\n\n\n")
         llama_versatile_response = llama_versatile_completion.choices[0].message.content
         print("llama-3.3-70b-versatile Response: ", llama_versatile_response, "\n\n\n")
+        calculate_coherence_score(prompt, llama_versatile_response)
+
         llama_instant_response = llama_instant_completion.choices[0].message.content
         print("llama-3.1-8b-instant Response: ", llama_instant_response, "\n\n\n")
+        calculate_coherence_score(prompt, llama_instant_response)
+
         mixtral_response = mixtral_completion.choices[0].message.content
         print("mixtral-8x7b-32768 Response: ", mixtral_response, "\n\n\n")
+        calculate_coherence_score(prompt, mixtral_response)
+
         gpt_response = gpt_completion.choices[0].message.content
         print("gpt-4o-mini Response: ", gpt_response, "\n\n\n")
+        calculate_coherence_score(prompt, gpt_response)
+
         print("\n\n\n\n----------------------------\n\n")
 
         llm_responses = [
