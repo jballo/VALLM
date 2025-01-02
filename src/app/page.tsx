@@ -1,14 +1,11 @@
-import Header from "@/components/custom/header"
-import PromptForm from "@/components/custom/promptform"
-import TextComparison from "@/components/custom/textComparison";
+"use server";
+
+import Dashboard from "@/components/custom/dashboard";
+import { createResponse } from "./actions/createResponse";
 
 
-export default function Home() {
+export default async function Home() {
   return (
-    <div className="w-full min-h-screen p-12 flex flex-col gap-6">
-      <Header />
-      <PromptForm />
-      <TextComparison />
-    </div>
+    <Dashboard createResponse={createResponse}/>
   );
 }
