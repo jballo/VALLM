@@ -464,7 +464,7 @@ def generate_response():
 
 
 
-@app.route("/scrape")
+@app.route("/scrape", methods=['POST'])
 def scrape_url():
     # Verify the request is authenticated
     header_api_key = request.headers.get('X-API-Key')

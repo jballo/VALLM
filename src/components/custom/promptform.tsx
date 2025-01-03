@@ -20,15 +20,23 @@ interface SetResponesProp {
     setResponses: (responses: LLMResponses[]) => void;
 }
 
+interface CreateEmbeddingProp {
+    createEmbedding: (
+        url: string
+    ) => Promise<{ success: boolean; response?: string; error?: string }>
+}
+
 interface PromptFormProps {
   createResponse: CreateResponseProps["createResponse"];
   setResponses: SetResponesProp["setResponses"];
+  createEmbedding: CreateEmbeddingProp["createEmbedding"];
 }
 
-export default function PromptForm( {createResponse, setResponses}: PromptFormProps) {
+export default function PromptForm( {createResponse, setResponses, createEmbedding }: PromptFormProps) {
     const [prompt, setPrompt] = useState<string>("");
+    const [url, setUrl] = useState<string>("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const submitPrompt = async (e: React.FormEvent) => {
         e.preventDefault();
 
         try {
@@ -54,18 +62,54 @@ export default function PromptForm( {createResponse, setResponses}: PromptFormPr
             console.error(error);
         }
     }
+
+    const submitUrl = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        try {
+            const response = await createEmbedding(url);
+
+            if (!response.success) {
+                throw new Error(response.error || "Failed to create embedding of url");
+            }
+            console.log("Response: ", response.response);
+            
+        } catch (error) {
+            console.error(error);
+        }
+    }
     return (
-        <div className="flex flex-row gap-3">
-            <Input
-                type="text"
-                value={prompt} 
-                onChange={e => setPrompt(e.target.value)}
-            />
-            <Button
-                onClick={handleSubmit}
-            >
-                Submit
-            </Button>
+        <div className="flex flex-col gap-4 w-full">
+            <div className="w-full">
+                <p>URL</p>
+                <div className="flex flex-row gap-3">
+                    <Input 
+                        type="text"
+                        value={url}
+                        onChange={e => setUrl(e.target.value)}
+                    />
+                    <Button
+                        onClick={submitUrl}
+                    >
+                        Submit
+                    </Button>
+                </div>
+            </div>
+            <div className="w-full">
+                <p>Prompt</p>
+                <div className="flex flex-row gap-3">
+                    <Input
+                        type="text"
+                        value={prompt} 
+                        onChange={e => setPrompt(e.target.value)}
+                    />
+                    <Button
+                        onClick={submitPrompt}
+                    >
+                        Submit
+                    </Button>
+                </div>
+            </div>
         </div>
     )
 }
