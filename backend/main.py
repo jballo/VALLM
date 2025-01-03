@@ -8,13 +8,18 @@ from groq import Groq
 from openai import OpenAI
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 from deepeval.metrics import GEval, HallucinationMetric, ToxicityMetric, PromptAlignmentMetric, BiasMetric
-
+from playwright.sync_api import sync_playwright
+from bs4 import BeautifulSoup
 
 # Load .env file
 load_dotenv()
 # Get the connection string from the environment variable
 connection_string = os.getenv('DATABASE_URL')
 api_key = os.getenv('API_KEY')
+
+AUTH = 'brd-customer-hl_ed1625a0-zone-llmeval:p6q8kh688vrk'
+SBR_WS_CDP = f'https://{AUTH}@brd.superproxy.io:9222'
+
 app = Flask(__name__)
 CORS(app) 
 
@@ -457,5 +462,56 @@ def generate_response():
 
         return make_response(jsonify(response_body), 500)
 
+
+
+@app.route("/scrape")
+def scrape_url():
+    # Verify the request is authenticated
+    header_api_key = request.headers.get('X-API-Key')
+    auth_check = verify_auth_header(header_api_key)
+    if auth_check != None:
+        return auth_check
+    
+
+    url_param = request.args.get('url')
+    print("Attempting to scrape: ", url_param)
+
+    print('Connecting to Scraping Browser...')
+    with sync_playwright() as playwright:
+        # run(pw=playwright, url=url_param)
+        print('Connecting to Scraping Browser...')
+        browser = playwright.chromium.connect_over_cdp(SBR_WS_CDP)
+        try:
+            page = browser.new_page()
+            print('Connected! Navigating to webpage')
+            page.goto(url_param, wait_until="domcontentloaded", timeout=60000)
+
+            html = page.content()
+            soup = BeautifulSoup(html)
+            content = soup.prettify()
+            content_text = soup.get_text()
+            print("\n\n\n\n-------------TEXT-------------\n\n\n\n")
+            print(content_text)
+            print("\n\n\n\n--------------------------------\n\n\n\n")
+
+            response_body = {
+                "status": "success",
+                "code": 200,
+                "content": content_text
+            }
+
+            return make_response(jsonify(response_body), 200)
+        except Exception as error:
+            print("Error: ", str(error))
+            response_body = {
+                "status": "failure",
+                "code": 500,
+                "error": str(error)
+            }
+            return make_response(jsonify(response_body), 500)
+        finally:
+            browser.close()
+
+    return make_response(jsonify({"hello": "there"}), 200)
 
 
