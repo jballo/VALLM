@@ -524,6 +524,12 @@ def scrape_url():
 @app.route("/embed", methods=['POST'])
 def generate_embeddings():
     print("/embed")
+    # Verify the request is authenticated
+    header_api_key = request.headers.get('X-API-Key')
+    auth_check = verify_auth_header(header_api_key)
+    if auth_check != None:
+        return auth_check
+    
     url = request.args.get('url')
     # content = request.args.get('content')
     content = request.json
