@@ -10,14 +10,20 @@ from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 from deepeval.metrics import GEval, HallucinationMetric, ToxicityMetric, PromptAlignmentMetric, BiasMetric
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
+from sentence_transformers import SentenceTransformer
+from pinecone import Pinecone
+from langchain_pinecone import PineconeVectorStore
+from langchain.schema import Document
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 # Load .env file
 load_dotenv()
 # Get the connection string from the environment variable
 connection_string = os.getenv('DATABASE_URL')
 api_key = os.getenv('API_KEY')
+pinecone_api_key = os.getenv('PINECONE_API_KEY')
 
-AUTH = 'brd-customer-hl_ed1625a0-zone-llmeval:p6q8kh688vrk'
+AUTH = os.getenv('BRIGHT_DATA_AUTH')
 SBR_WS_CDP = f'https://{AUTH}@brd.superproxy.io:9222'
 
 app = Flask(__name__)
@@ -513,5 +519,57 @@ def scrape_url():
             browser.close()
 
     return make_response(jsonify({"hello": "there"}), 200)
+
+
+@app.route("/embed", methods=['POST'])
+def generate_embeddings():
+    print("/embed")
+    url = request.args.get('url')
+    # content = request.args.get('content')
+    content = request.json
+    content_json = jsonify(content)
+    print("Content: ", content)
+    print("\n\n\nContent json: ",content_json )
+
+    content_sentences = content.split(". ")
+
+    print("Sentences: ")
+    for sent in content_sentences:
+        print(sent, "\n")
+    pc = Pinecone(api_key=pinecone_api_key,)
+    pinecone_index = pc.Index("llmeval")
+
+    # vectorstore = PineconeVectorStore(index_name="llmeval", embedding=HuggingFaceEmbeddings())
+
+    documents = []
+    for sent_index, sent in enumerate(content_sentences):
+          source = f"""{url} sentence #: {sent_index}"""
+        #   source = url + " sentence #: " + sent_index
+          doc = Document(
+              page_content=sent,
+              metadata={
+                  "source": source,
+                  "chunk_index": sent_index,
+                  "total_chunks": len(sent)
+              }
+          )
+          documents.append(doc)
+    
+    vectorstore = PineconeVectorStore.from_documents(
+        documents=documents,
+        embedding=HuggingFaceEmbeddings(),
+        index_name="llmeval",
+        namespace= url
+    )
+
+    response_body = {
+        "status": "success",
+        "code": 200,
+        "content": "Sucessfully embedded content from websites"
+    }
+
+    return make_response(jsonify(response_body), 200)
+
+
 
 
