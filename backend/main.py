@@ -576,6 +576,51 @@ def generate_embeddings():
 
     return make_response(jsonify(response_body), 200)
 
+def get_huggingface_embeddings(text, model_name="sentence-transformers/all-mpnet-base-v2"):
+    model = SentenceTransformer(model_name)
+    return model.encode(text)
+
+@app.route("/rag", methods=['POST'])
+def rag_retrieve():
+    prompt = request.args.get('prompt')
+    url = request.args.get('url')
+
+    print("Prompt: ", prompt)
+    print("Url: ", url)
+
+    raw_query_embedding = get_huggingface_embeddings(prompt)
+
+    # Initialize Pinecone
+    pc = Pinecone(api_key=os.getenv("pinecone_api_key"),)
+
+    # Connect to your Pinecone index
+    pinecone_index = pc.Index("llmeval")
+
+    top_matches = pinecone_index.query(vector=raw_query_embedding.tolist(), top_k=5, include_metadata=True, namespace=url)
+
+    print("\n\n\n-------------Matches--------------\n\n\n")
+    print(top_matches)
+    print("\n\n\n---------------------------------------\n\n\n")
 
 
+    contexts = [item['metadata']['text'] for item in top_matches['matches']]
 
+    print("\n\n\n-------------Contexts--------------\n\n\n")
+    print(contexts)
+    print("\n\n\n---------------------------------------\n\n\n")
+
+
+    augmented_query = "<CONTEXT>\n" + "\n\n-----------\n\n".join(contexts[ : 10]) + "\n\n---------\n</CONTEXT>\n\n\n\nMY QUESTION:\n" + prompt
+
+    print("\n\n\n-------------AUGMENTED QUERY--------------\n\n\n")
+    print(augmented_query)
+    print("\n\n\n---------------------------------------\n\n\n")
+
+
+    response_body = {
+        "status": "success",
+        "code": 200,
+        "content": augmented_query
+    }
+
+    return make_response(jsonify(response_body), 200)

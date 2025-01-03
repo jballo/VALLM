@@ -26,13 +26,21 @@ interface CreateEmbeddingProp {
     ) => Promise<{ success: boolean; response?: string; error?: string }>
 }
 
+interface RagProps {
+    ragRetrieval: (
+        prompt: string,
+        url: string
+    ) => Promise<{ success: boolean; response?: string; error?: string }>
+}
+
 interface PromptFormProps {
   createResponse: CreateResponseProps["createResponse"];
   setResponses: SetResponesProp["setResponses"];
   createEmbedding: CreateEmbeddingProp["createEmbedding"];
+  ragRetrieval: RagProps["ragRetrieval"];
 }
 
-export default function PromptForm( {createResponse, setResponses, createEmbedding }: PromptFormProps) {
+export default function PromptForm( {createResponse, setResponses, createEmbedding, ragRetrieval }: PromptFormProps) {
     const [prompt, setPrompt] = useState<string>("");
     const [url, setUrl] = useState<string>("");
 
@@ -58,6 +66,21 @@ export default function PromptForm( {createResponse, setResponses, createEmbeddi
                 setResponses(resps)
             }
             
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const submitForRag = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        try {
+            const response = await ragRetrieval(prompt, url);
+            if (!response.success) {
+                throw new Error(response.error || "Failed to generate response");
+            }
+            const content = response.response;
+            console.log("Content: ", content);
         } catch (error) {
             console.error(error);
         }
@@ -104,7 +127,7 @@ export default function PromptForm( {createResponse, setResponses, createEmbeddi
                         onChange={e => setPrompt(e.target.value)}
                     />
                     <Button
-                        onClick={submitPrompt}
+                        onClick={submitForRag}
                     >
                         Submit
                     </Button>
