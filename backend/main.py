@@ -582,6 +582,13 @@ def get_huggingface_embeddings(text, model_name="sentence-transformers/all-mpnet
 
 @app.route("/rag", methods=['POST'])
 def rag_retrieve():
+    # Verify the request is authenticated
+    header_api_key = request.headers.get('X-API-Key')
+    auth_check = verify_auth_header(header_api_key)
+    if auth_check != None:
+        return auth_check
+    
+    
     prompt = request.args.get('prompt')
     url = request.args.get('url')
 
