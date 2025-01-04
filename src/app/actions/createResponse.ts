@@ -5,7 +5,7 @@ export async function createResponse(text: string, url: string) {
     console.log("Text in action: ", text);
     try {
         // const url = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3000';
-        const response_url = process.env.NEXT_PUBLIC_API_URL ||'http://localhost:3000';
+        const response_url = process.env.NEXT_API_URL ||'http://localhost:3000';
         const response = await fetch(`${response_url}/api/create-response/`, {
             method: "POST",
             headers: {

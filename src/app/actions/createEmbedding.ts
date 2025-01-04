@@ -5,7 +5,7 @@ export async function createEmbedding(url: string) {
     console.log("Url in actions: ", url);
 
     try {
-        const url_endpoint = process.env.NEXT_PUBLIC_API_URL ||'http://localhost:3000';
+        const url_endpoint = process.env.NEXT_API_URL ||'http://localhost:3000';
         const response = await fetch(`${url_endpoint}/api/create-embedding/`, {
             method: "POST",
             headers: {
