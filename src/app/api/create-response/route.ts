@@ -43,10 +43,11 @@ export async function POST(request: Request) {
         const augmented_text = rag_result.content
         console.log("Content from rag result passed onto create response: ", augmented_text)
 
-
+        const context = augmented_text;
 
         const response_url = new URL(process.env.GENERATE_RESPONSE_ENDPOINT || "http://127.0.0.1:5000/response");
         response_url.searchParams.set("text", augmented_text);
+        response_url.searchParams.set("context", context);
         const response = await fetch(response_url.toString(),{
                 method: "POST",
                 headers: {

@@ -9,6 +9,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 interface LLMResponses {
     llm_name: string;
     llm_response: string;
+    llm_relevancy_score: number;
 }
 
 interface TestCaseResult {
@@ -37,9 +38,7 @@ export function ResponseCard({ item, isActive, onClick }: ResponseCardProps) {
       </CardHeader>
       <CardContent>
         <div className="flex justify-between text-xs text-muted-foreground mb-2">
-          <span>Words: {3}</span>
-          <span>Chars: {4}</span>
-          <span>Unique: {5}</span>
+          <span>Relevancy Score: {item.llm_relevancy_score}</span>
         </div>
         <AnimatePresence>
           {isActive && (
