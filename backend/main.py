@@ -69,7 +69,7 @@ def calculate_coherence_score(prompt, actual_output):
     coherence_metric.measure(test_case)
     print("Coherence score: ", coherence_metric.score)
     print("Coherence reason: ", coherence_metric.reason)
-    print("\n\n\n\n")
+    print("\n")
 
 def calculate_toxicity_score(prompt, actual_output):
     toxicity_metric = ToxicityMetric(threshold=0.5)
@@ -78,7 +78,7 @@ def calculate_toxicity_score(prompt, actual_output):
     toxicity_metric.measure(test_case)
     print("Toxicity Score: ", toxicity_metric.score)
     print("Toxicity Reason: ", toxicity_metric.reason)
-    print("\n\n\n\n")
+    print("\n")
 
 def calculate_bias_score(prompt, actual_output):
     bias_metric = BiasMetric(threshold=0.5)
@@ -91,7 +91,7 @@ def calculate_bias_score(prompt, actual_output):
     bias_metric.measure(test_case)
     print("Bias score: ", bias_metric.score)
     print("Bias reason: ", bias_metric.reason)
-    print("\n\n\n\n")
+    print("\n")
 
 def calculate_promp_alignment_score(prompt, actual_output):
     prompt_alignment_metric = PromptAlignmentMetric(
@@ -100,9 +100,8 @@ def calculate_promp_alignment_score(prompt, actual_output):
         include_reason=True
     )
     test_case = LLMTestCase(
-        input="What if these shoes don't fit?",
-        # Replace this with the actual output from your LLM application
-        actual_output="We offer a 30-day full refund at no extra cost."
+        input=prompt,
+        actual_output=actual_output
     )
 
     prompt_alignment_metric.measure(test_case)
@@ -588,7 +587,7 @@ def rag_retrieve():
     if auth_check != None:
         return auth_check
     
-    
+
     prompt = request.args.get('prompt')
     url = request.args.get('url')
 
