@@ -12,7 +12,8 @@ interface LLMResponses {
 
 interface CreateResponseProps {
     createResponse: (
-        text: string
+        text: string,
+        url: string
     ) => Promise<{ success: boolean; responses?: LLMResponses[]; error?: string;}>
 }
 

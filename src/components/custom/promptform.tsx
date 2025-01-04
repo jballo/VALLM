@@ -12,7 +12,8 @@ interface LLMResponses {
 
 interface CreateResponseProps {
     createResponse: (
-        text: string
+        text: string,
+        url: string
     ) => Promise<{ success: boolean; responses?: LLMResponses[]; error?: string;}>
 }
 
@@ -48,7 +49,7 @@ export default function PromptForm( {createResponse, setResponses, createEmbeddi
         e.preventDefault();
 
         try {
-            const response = await createResponse(prompt);
+            const response = await createResponse(prompt, url);
 
             if (!response.success) {
                 throw new Error(response.error || "Failed to generate response");
@@ -127,7 +128,7 @@ export default function PromptForm( {createResponse, setResponses, createEmbeddi
                         onChange={e => setPrompt(e.target.value)}
                     />
                     <Button
-                        onClick={submitForRag}
+                        onClick={submitPrompt}
                     >
                         Submit
                     </Button>
