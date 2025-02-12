@@ -14,6 +14,7 @@ interface TestCase {
 interface LLMResponses {
     llm_name: string;
     llm_response: string;
+    llm_relevancy_score: number;
 }
 
 interface CreateResponseProps {
@@ -31,28 +32,6 @@ interface TestCaseResult {
   expectedOutput: string
   responses: LLMResponses[]
 }
-
-// // This function simulates getting responses from different LLMs
-// const simulateLLMResponses = async (prompt: string, url: string): Promise<LLMResponse[]> => {
-//   // In a real scenario, you would call actual LLM APIs here
-//   const llms = ['GPT-3', 'GPT-4', 'Claude', 'PALM']
-//   const responses: LLMResponse[] = await Promise.all(
-//     llms.map(async (llm) => {
-//       const response = `This is a simulated response from ${llm} for the prompt: "${prompt}". In a real scenario, this would be the actual response from the LLM.`
-//       const words = response.split(/\s+/)
-//       return {
-//         llmName: llm,
-//         response,
-//         stats: {
-//           wordCount: words.length,
-//           charCount: response.length,
-//           uniqueWords: new Set(words.map(w => w.toLowerCase())).size
-//         }
-//       }
-//     })
-//   )
-//   return responses
-// }
 
 export default function LLMResponseComparison({createResponse, url}: CreateResponseProps) {
   const [testCaseResults, setTestCaseResults] = useState<TestCaseResult[]>([])
