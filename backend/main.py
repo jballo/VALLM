@@ -16,6 +16,10 @@ from langchain_pinecone import PineconeVectorStore
 from langchain.schema import Document
 from langchain_community.embeddings import HuggingFaceEmbeddings
 import json
+from transformers import AutoTokenizer
+from huggingface_hub import login
+import redis
+import time
 
 # Load .env file
 load_dotenv()
@@ -23,6 +27,10 @@ load_dotenv()
 connection_string = os.getenv('DATABASE_URL')
 api_key = os.getenv('API_KEY')
 pinecone_api_key = os.getenv('PINECONE_API_KEY')
+redis_host: str = os.getenv("REDIS_HOST")
+redis_port: str = os.getenv("REDIS_PORT")
+redis_username: str = os.getenv("REDIS_USERNAME")
+redis_psswrd: str = os.getenv("REDIS_PASSWORD")
 
 AUTH = os.getenv('BRIGHT_DATA_AUTH')
 SBR_WS_CDP = f'https://{AUTH}@brd.superproxy.io:9222'
@@ -36,6 +44,13 @@ client = Groq(
 
 openAi_client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
+)
+r = redis.Redis(
+    host=redis_host,
+    port=redis_port,
+    decode_responses=True,
+    username=redis_username,
+    password=redis_psswrd,
 )
 
 
@@ -268,6 +283,59 @@ def createUser():
         return make_response(jsonify(response_body), 500)
 
 
+def is_request_allowed(model, tokens_needed):
+    TPM_LIMITS = {
+        "llama-3.3-70b-versatile": 6000
+    }
+
+    # Define the Lua script (as above)
+    lua_script = """
+    local tokens_key = KEYS[1]          -- e.g., "llama:tpm"
+    local last_refill_key = KEYS[2]     -- e.g., "llama:last_refill"
+    local max_tokens = tonumber(ARGV[1]) -- e.g., 6000
+    local refill_rate = tonumber(ARGV[2]) -- e.g., 100 tokens/sec
+    local tokens_needed = tonumber(ARGV[3])
+    local now = tonumber(ARGV[4])       -- Current Unix timestamp
+
+    -- Fetch current state
+    local current_tokens = tonumber(redis.call('GET', tokens_key)) or max_tokens
+    local last_refill = tonumber(redis.call('GET', last_refill_key)) or now
+
+    -- Calculate time elapsed since last refill
+    local time_elapsed = now - last_refill
+
+    -- Replenish tokens (but don’t exceed max_tokens)
+    local tokens_to_add = refill_rate * time_elapsed
+    current_tokens = math.min(current_tokens + tokens_to_add, max_tokens)
+
+    -- Check if enough tokens exist
+    if current_tokens >= tokens_needed then
+        current_tokens = current_tokens - tokens_needed
+        redis.call('SET', tokens_key, current_tokens)
+        redis.call('SET', last_refill_key, now)
+        return 1  -- Allow request
+    else
+        return 0  -- Deny request
+    end
+    """
+
+    # Execute the script with Redis
+    # allowed = r.eval(
+    #     lua_script,  # The Lua script
+    #     1,  # Number of Redis keys being passed (1 key: tokens_key)
+    #     f"{model}:tpm",  # KEYS[1]: The Redis key (e.g., "llama:tpm")
+    #     TPM_LIMITS[model],  # ARGV[1]: The TPM limit (e.g., 6000)
+    #     tokens_needed,       # ARGV[2]: Tokens needed for this request
+    #     int(time.time())     # ARGV[3]: Current Unix timestamp
+    # )
+    update = r.register_script(lua_script)
+    allowed = update(
+        keys=[f"{model}:tpm", f"{model}:last_refill"],
+        args=[str(TPM_LIMITS[model]), str(100), str(tokens_needed), str(int(time.time()))]
+    )
+    # Convert Lua result (0 or 1) to a boolean
+    return bool(allowed)
+
 @app.route("/response", methods=['POST'])
 def generate_response():
     # Verify the request is authenticated
@@ -400,6 +468,25 @@ def generate_response():
     "You can contact customer support via email at support@company.com, by phone at +1 (800) 123-4567, or through live chat available from 9 AM to 5 PM EST.
     
     """
+    login(token=os.environ["HUGGING_FACE_ACCESS_TOKEN"])
+    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.3-70B-Instruct")
+    system_prompt_tokens = tokenizer.encode(system_prompt, add_special_tokens=False)
+    user_prompt_tokens = tokenizer.encode(prompt, add_special_tokens=False)
+
+    print("\n\n------------------------\n\n")
+    print(f"Llama System Prompt Token count: {len(system_prompt_tokens)}\nLlama User Prompt Token count: {len(user_prompt_tokens)}")
+
+    mixtral_tokenizer = AutoTokenizer.from_pretrained("mistralai/Mixtral-8x7B-v0.1")
+    system_prompt_tokens = mixtral_tokenizer.encode(system_prompt, add_special_tokens=False)
+    user_prompt_tokens = mixtral_tokenizer.encode(prompt, add_special_tokens=False)
+
+    print(f"\n\nMixtral System Prompt Token count: {len(system_prompt_tokens)}\nMixtral User Prompt Token count: {len(user_prompt_tokens)}")
+    print("\n\n------------------------\n\n")
+
+    total_tokens = (system_prompt_tokens + user_prompt_tokens)
+    is_request_allowed("llama-3.3-70b-versatile", total_tokens)
+
+
     try :
         llama_versatile_completion = client.chat.completions.create(
             messages=[
@@ -415,46 +502,47 @@ def generate_response():
             model="llama-3.3-70b-versatile",
         )
 
-        llama_instant_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            model="llama-3.1-8b-instant",
-        )
-        mixtral_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            model="mixtral-8x7b-32768",
-        )
+        # llama_instant_completion = client.chat.completions.create(
+        #     messages=[
+        #         {
+        #             "role": "system",
+        #             "content": system_prompt
+        #         },
+        #         {
+        #             "role": "user",
+        #             "content": prompt,
+        #         }
+        #     ],
+        #     model="llama-3.1-8b-instant",
+        # )
+        # mixtral_completion = client.chat.completions.create(
+        #     messages=[
+        #         {
+        #             "role": "system",
+        #             "content": system_prompt
+        #         },
+        #         {
+        #             "role": "user",
+        #             "content": prompt,
+        #         }
+        #     ],
+        #     model="mixtral-8x7b-32768",
+        # )
 
-        gpt_completion = openAi_client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            model="gpt-4o-mini",
-        )
+        # gpt_completion = openAi_client.chat.completions.create(
+        #     messages=[
+        #         {
+        #             "role": "system",
+        #             "content": system_prompt
+        #         },
+        #         {
+        #             "role": "user",
+        #             "content": prompt,
+        #         }
+        #     ],
+        #     model="gpt-4o-mini",
+        # )
+        print("\n\nllama_versatile_completion: ", llama_versatile_completion)
         print("\n\n----------------------------\n\n\n\n")
         llama_versatile_response = llama_versatile_completion.choices[0].message.content
         print("llama-3.3-70b-versatile Response: ", llama_versatile_response, "\n\n\n")
@@ -464,29 +552,29 @@ def generate_response():
         # calculate_promp_alignment_score(system_prompt, llama_versatile_response)
         llama_versatile_relevancy_score = calculate_relevancy_score(prompt, llama_versatile_response)
 
-        llama_instant_response = llama_instant_completion.choices[0].message.content
-        print("llama-3.1-8b-instant Response: ", llama_instant_response, "\n\n\n")
+        # llama_instant_response = llama_instant_completion.choices[0].message.content
+        # print("llama-3.1-8b-instant Response: ", llama_instant_response, "\n\n\n")
         # calculate_coherence_score(prompt, llama_instant_response)
         # calculate_toxicity_score(prompt, llama_instant_response)
         # calculate_bias_score(prompt, llama_instant_response)
         # calculate_promp_alignment_score(system_prompt, llama_instant_response)
-        llama_instant_relevancy_score = calculate_relevancy_score(prompt, llama_instant_response)
+        # llama_instant_relevancy_score = calculate_relevancy_score(prompt, llama_instant_response)
 
-        mixtral_response = mixtral_completion.choices[0].message.content
-        print("mixtral-8x7b-32768 Response: ", mixtral_response, "\n\n\n")
+        # mixtral_response = mixtral_completion.choices[0].message.content
+        # print("mixtral-8x7b-32768 Response: ", mixtral_response, "\n\n\n")
         # calculate_coherence_score(prompt, mixtral_response)
         # calculate_toxicity_score(prompt, mixtral_response)
         # calculate_bias_score(prompt, mixtral_response)
         # calculate_promp_alignment_score(system_prompt, mixtral_response)
-        mixtral_relevancy_score = calculate_relevancy_score(prompt, mixtral_response)
+        # mixtral_relevancy_score = calculate_relevancy_score(prompt, mixtral_response)
 
-        gpt_response = gpt_completion.choices[0].message.content
-        print("gpt-4o-mini Response: ", gpt_response, "\n\n\n")
+        # gpt_response = gpt_completion.choices[0].message.content
+        # print("gpt-4o-mini Response: ", gpt_response, "\n\n\n")
         # calculate_coherence_score(prompt, gpt_response)
         # calculate_toxicity_score(prompt, gpt_response)
         # calculate_bias_score(prompt, gpt_response)
         # calculate_promp_alignment_score(system_prompt, gpt_response)
-        gpt_relevancy_score = calculate_relevancy_score(prompt, gpt_response)
+        # gpt_relevancy_score = calculate_relevancy_score(prompt, gpt_response)
 
         print("\n\n\n\n----------------------------\n\n")
 
@@ -496,21 +584,21 @@ def generate_response():
                 "llm_response": llama_versatile_response,
                 "llm_relevancy_score": llama_versatile_relevancy_score
             },
-            {
-                "llm_name": "llama-3.1-8b-instant",
-                "llm_response": llama_instant_response,
-                "llm_relevancy_score": llama_instant_relevancy_score
-            },
-            {
-                "llm_name": "mixtral-8x7b-32768",
-                "llm_response": mixtral_response,
-                "llm_relevancy_score": mixtral_relevancy_score
-            },
-            {
-                "llm_name": "gpt-4o-mini",
-                "llm_response": gpt_response,
-                "llm_relevancy_score": gpt_relevancy_score
-            },
+            # {
+            #     "llm_name": "llama-3.1-8b-instant",
+            #     "llm_response": llama_instant_response,
+            #     "llm_relevancy_score": llama_instant_relevancy_score
+            # },
+            # {
+            #     "llm_name": "mixtral-8x7b-32768",
+            #     "llm_response": mixtral_response,
+            #     "llm_relevancy_score": mixtral_relevancy_score
+            # },
+            # {
+            #     "llm_name": "gpt-4o-mini",
+            #     "llm_response": gpt_response,
+            #     "llm_relevancy_score": gpt_relevancy_score
+            # },
         ]
 
         response_body = {
