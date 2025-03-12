@@ -21,7 +21,7 @@ interface CreateResponseProps {
     createResponse: (
         text: string,
         url: string
-    ) => Promise<{ success: boolean; responses?: LLMResponses[]; error?: string;}>
+    ) => Promise<{ success: boolean; response?: LLMResponses[]; error?: string;}>
     url: string
 }
 
@@ -40,7 +40,7 @@ export default function LLMResponseComparison({createResponse, url}: CreateRespo
     const results = await Promise.all(testCases.map(async (testCase) => {
     //   const responses = await simulateLLMResponses(testCase.prompt,)
       const response = await createResponse(testCase.prompt, url);
-      const responses = response.responses || [];
+      const responses = response.response || [];
       return {
         testCaseId: testCase.id,
         prompt: testCase.prompt,
