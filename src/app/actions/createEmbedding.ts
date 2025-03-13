@@ -5,7 +5,7 @@ export async function createEmbedding(url: string) {
     console.log("Url in actions: ", url);
 
     try {
-        const scrape_url_endpoint = new URL(process.env.SCRAPE_ENDPOINT || "http://127.0.0.1:5000/scrape");
+        const scrape_url_endpoint = new URL(process.env.SCRAPE_ENDPOINT || "http://127.0.0.1:5000/api/v1/scrape");
 
         scrape_url_endpoint.searchParams.set("url", url);
 
@@ -25,7 +25,7 @@ export async function createEmbedding(url: string) {
         const scrape_result = await scrape_response.json();
         console.log("scrape_result: ", scrape_result.content);
 
-        const embed_url_endpoint = new URL(process.env.CREATE_EMBEDDING_ENDPOINT || "http://127.0.0.1:5000/embed");
+        const embed_url_endpoint = new URL(process.env.CREATE_EMBEDDING_ENDPOINT || "http://127.0.0.1:5000/api/v1/retrieval-augmented-generations/embed");
 
         embed_url_endpoint.searchParams.set("url", url);
 
