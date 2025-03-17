@@ -35,50 +35,6 @@ interface PromptFormProps {
 }
 
 export default function PromptForm( { createEmbedding, url, setUrl }: PromptFormProps) {
-    // const [prompt, setPrompt] = useState<string>("");
-    // const [url, setUrl] = useState<string>("");
-
-    // const submitPrompt = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-
-    //     try {
-    //         const response = await createResponse(prompt, url);
-
-    //         if (!response.success) {
-    //             throw new Error(response.error || "Failed to generate response");
-    //         }
-    //         if (response.responses && response.responses.length > 0){
-    //             console.log("Generated Responses: ", response.responses);
-    //             const resps: LLMResponses[] = [];
-    //             response.responses.map((response) => {
-    //                 const res = {
-    //                     llm_name: response.llm_name,
-    //                     llm_response: response.llm_response,
-    //                 } 
-    //                 resps.push(res);
-    //             })
-    //             setResponses(resps)
-    //         }
-            
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // }
-
-    // const submitForRag = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-
-    //     try {
-    //         const response = await ragRetrieval(prompt, url);
-    //         if (!response.success) {
-    //             throw new Error(response.error || "Failed to generate response");
-    //         }
-    //         const content = response.response;
-    //         console.log("Content: ", content);
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // }
 
     const submitUrl = async (e: React.FormEvent) => {
         e.preventDefault();

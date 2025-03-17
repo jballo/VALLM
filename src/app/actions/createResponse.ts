@@ -4,24 +4,59 @@
 export async function createResponse(text: string, url: string) {
     console.log("Text in action: ", text);
     try {
-        // const url = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3000';
-        const response_url = process.env.NEXT_API_URL ||'http://localhost:3000';
-        const response = await fetch(`${response_url}/api/create-response/`, {
+        const rag_url = new URL(process.env.RAG_RETRIEVAL_ENDPOINT || "http://127.0.0.1:5000/api/v1/retrieval-augmented-generations");
+
+        rag_url.searchParams.set("prompt", text);
+        rag_url.searchParams.set("url", url);
+
+        const rag_response = await fetch(rag_url.toString(), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-API-SECRET": process.env.API_SECRET || "",
-            },
-            body: JSON.stringify({ text, url })
+                "X-API-Key": process.env.API_KEY || "",
+            }
         });
 
-        if(!response.ok) {
-            throw new Error(`HTTPS error! status: ${response.status}`);
+        if (!rag_response.ok){
+            const errorText = await rag_response.text();
+            console.error("Rag Response: ", errorText);
+            throw new Error(`HTTP error! status: ${rag_response.status}, message: ${errorText}`);
         }
 
-        const result = response.json();
+        const rag_result = await rag_response.json();
+        console.log("Rag result: ", rag_result);
 
-        return result;
+        const augmented_text = rag_result.content;
+        console.log("Content from rag result passed onto create response: ", augmented_text);
+
+        const context = augmented_text;
+
+        const response_url = new URL(process.env.GENERATE_RESPONSE_ENDPOINT || "http://127.0.0.1:5000/api/v1/llm-response");
+        response_url.searchParams.set("text", augmented_text);
+        response_url.searchParams.set("context", context);
+
+        const response = await fetch(response_url.toString(), {
+            method: "POST",
+            headers: {
+                "X-API-Key": process.env.API_KEY || "",
+                Accept: "multipart/mixed",
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("API Response: ", errorText);
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const response_result = await response.json();
+        console.log("Result: ", response_result);
+
+        return {
+            success: true,
+            response: response_result.content,
+        }
+        
     } catch (error) {
         console.error("Error: ", error);
         return {

@@ -16,7 +16,7 @@ interface CreateResponseProps {
     createResponse: (
         text: string,
         url: string
-    ) => Promise<{ success: boolean; responses?: LLMResponses[]; error?: string;}>
+    ) => Promise<{ success: boolean; response?: LLMResponses[]; error?: string;}>
 }
 
 interface CreateEmbeddingProp {
