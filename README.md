@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VALLM - Vision Assisted Large Language Model
 
-## Getting Started
+## Overview
 
-First, run the development server:
+VALLM (Vision Assisted Large Language Model) is a web application that helps users determine the most suitable Large Language Model (LLM) for their website or platform needs. Users can input URLs, provide test cases, and evaluate the responses from different LLMs to make informed decisions. The application aims to streamline the LLM selection process, saving developers time and resources.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+-   **LLM Comparison:** Allows users to compare the performance of different LLMs on the same input data.
+-   **URL Input:** Accepts URLs as input for testing LLM performance on real-world web content.
+-   **Test Case Management:** Enables users to define and manage test cases for consistent evaluation.
+-   **Response Evaluation:** Provides a user-friendly interface for judging and comparing LLM responses.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+-   **Frontend:** Next.js, Typescript, TailwindCSS
+-   **Backend:** Flask (Python)
+-   **Database:**  PostgreSQL (Planned)
+-   **APIs:** Groq, OpenAI
+-   **Deployment:** Vercel (Frontend), [Choose your own adventure for backend - e.g., Render, AWS, GCP]
 
-## Learn More
+## Setup Instructions
 
-To learn more about Next.js, take a look at the following resources:
+1.  **Clone the Repository**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    ```sh
+    git clone <repository_url>
+    cd VALLM
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2.  **Install Dependencies**
 
-## Deploy on Vercel
+    ```sh
+    npm install  # Install frontend dependencies
+    cd backend
+    pip install -r requirements.txt # Install backend dependencies
+    ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3.  **Environment Variables Setup**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    *   These environment variables are for local development. For deployment, additional variables may be required depending on the hosting provider and services used.
+    *   Create a `.env.local` file in the root directory with:
+
+        ```
+        NEXT_PUBLIC_API_ENDPOINT=your_api_endpoint
+        NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+        NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+        SCRAPE_ENDPOINT=your_scrape_endpoint
+        CREATE_EMBEDDING_ENDPOINT=your_create_embedding_endpoint
+        RAG_RETRIEVAL_ENDPOINT=your_rag_retrieval_endpoint
+        ```
+
+    *   Create a `.env` file in the `backend` directory with:
+
+        ```
+        API_KEY=your_api_key
+        DATABASE_URL=your_database_url
+        PINECONE_API_KEY=your_pinecone_api_key
+        GROQ_API_KEY=your_groq_api_key
+        OPENAI_API_KEY=your_openai_api_key
+        BRIGHT_DATA_AUTH=your_bright_data_auth
+        ```
+
+    **Important Notes:**
+
+    *   Replace `your_api_endpoint`, `your_api_key`, `your_database_url`, `your_pinecone_api_key`, `your_groq_api_key`, `your_openai_api_key`, and `your_bright_data_auth` with your actual credentials.
+    *   The `API_KEY` in both `.env.local` and `.env` should be the same for authentication purposes.
+
+4.  **Run the Application**
+
+    *   Start the Backend:
+
+        ```sh
+        cd backend
+        python main.py
+        ```
+
+    *   Start the Frontend:
+
+        ```sh
+        npm run dev
+        ```
+
+5.  **Access the Application**
+
+    Open [http://localhost:3000](http://localhost:3000) in your web browser.
+
+## Development Considerations
+
+*   **API Integration:** Implement a robust and well-documented API layer for communication between the frontend and backend. Ensure proper error handling and data validation.
+*   **State Management:** For complex state management, consider using Zustand or Redux Toolkit. However, start simple and only introduce state management when necessary.
+*   **Testing:** Implement unit and integration tests to ensure code quality and prevent regressions. Use Jest and React Testing Library for testing React components and pytest for backend testing.
+*   **Database Setup:** Configure the PostgreSQL database using SQLAlchemy in the Flask backend. Ensure proper connection pooling and error handling.
+*   **Environment Variables:** Securely manage environment variables using a tool like `python-dotenv` for local development and a secrets management solution for production.
+
+## Future Enhancements
+
+*   **User Authentication:** Implement user authentication and authorization using a library like NextAuth.js (for the frontend) and Flask-Login or a JWT-based solution (for the backend).
+*   **CI/CD:** Set up a CI/CD pipeline for automated testing and deployment using tools like GitHub Actions, GitLab CI, or CircleCI.
+*   **Rate Limiting:** Implement rate limiting on your API endpoints to prevent abuse.
+*   **Caching:** Implement caching to improve performance and reduce the load on your LLM APIs.
+
+## Troubleshooting
+
+*   **API Key Errors:** Verify that your API keys in the `.env` files are correct and that you have sufficient credits to use the LLM APIs.
+*   **Database Connection Errors:** Verify that your PostgreSQL credentials in the `.env` file are correct and that your database is running.
+*   **Dependency Issues:** Ensure that all dependencies are installed correctly by running `npm install` in the frontend and `pip install -r requirements.txt` in the backend.
+
+## Additional Notes
+
+*   This setup is for local development. For production deployments, you'll need to use a proper hosting provider and configure your environment variables and webhooks accordingly.
+*   Make sure your API keys are valid and that you have sufficient credits to use the LLM APIs.
