@@ -85,10 +85,10 @@ def calculate_relevancy_score(prompt, actual_output):
         response_format={ "type": "json_object" }
     )
     raw_response = chat_completion.choices[0].message.content
-    print(f"Raw Response: {raw_response}")
+    # print(f"Raw Response: {raw_response}")
 
     parsed_response = json.loads(raw_response)
     score = parsed_response["relevancy_score"]
-    print(type(score))
-    print("Relevancy score: ", score)
+    # print(type(score))
+    # print("Relevancy score: ", score)
     return score

@@ -32,15 +32,20 @@ export async function createResponse(text: string, url: string) {
         const context = augmented_text;
 
         const response_url = new URL(process.env.GENERATE_RESPONSE_ENDPOINT || "http://127.0.0.1:8000/api/v1/llm-response");
-        response_url.searchParams.set("text", augmented_text);
-        response_url.searchParams.set("context", context);
+        // response_url.searchParams.set("text", augmented_text);
+        // response_url.searchParams.set("context", context);
 
         const response = await fetch(response_url.toString(), {
             method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "X-API-Key": process.env.API_KEY || "",
                 Accept: "multipart/mixed",
-            }
+            },
+            body: JSON.stringify({ 
+                text: augmented_text,
+                context: context
+             })
         });
 
         if (!response.ok) {

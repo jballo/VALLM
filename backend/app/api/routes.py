@@ -70,10 +70,19 @@ def llm_response():
         if auth_check != None:
             return auth_check
         
+        data = request.get_json()
+        # print("Data: ", data)
+
+        prompt = data['text']
+        contxt = data['context']
+
+        # print("\n\n\n\nPrompt: ", prompt)
+        # print("\n\n\n\nContext: ", contxt)
+        
         # Get the prompt from request
-        prompt = request.args.get('text')
-        contxt = request.args.get('context')
-        print("Text: ", prompt)
+        # prompt = request.args.get('text')
+        # contxt = request.args.get('context')
+        # print("Text: ", prompt)
 
         system_prompt = f"""
         I will provide you with information about a company's website, including sections like product pages, landing pages, FAQs, 'Contact Us,' pricing tables, testimonials, blogs, case studies, careers, company history, and more. Your task is to:
