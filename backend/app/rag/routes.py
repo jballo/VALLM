@@ -4,7 +4,8 @@ from app.utils import verify_auth_header
 from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone
 from langchain.schema import Document
-from langchain_community.embeddings import HuggingFaceEmbeddings
+# from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import PineconeVectorStore
 import os
 from app.config import Config
