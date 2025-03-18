@@ -1,9 +1,9 @@
 from flask import jsonify, request, make_response
-from backend.api import bp
-from backend.utils import verify_auth_header, calculate_relevancy_score 
-from backend.extensions import groq_client, openai_client
+from app.api import bp
+from app.utils import verify_auth_header, calculate_relevancy_score 
+from app.extensions import groq_client, openai_client
 from psycopg2 import pool, Error
-from backend.config import Config
+from app.config import Config
 import groq
 import os
 

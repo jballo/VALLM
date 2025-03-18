@@ -1,6 +1,6 @@
 from groq import Groq
 from openai import OpenAI
-from backend.config import Config
+from app.config import Config
 
 
 groq_client = Groq(

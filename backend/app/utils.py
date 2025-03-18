@@ -1,7 +1,7 @@
 import json
 from flask import make_response, jsonify
-from backend.extensions import groq_client
-from backend.config import Config
+from app.extensions import groq_client
+from app.config import Config
 
 api_key = Config.API_KEY
 

@@ -4,7 +4,7 @@
 export async function createResponse(text: string, url: string) {
     console.log("Text in action: ", text);
     try {
-        const rag_url = new URL(process.env.RAG_RETRIEVAL_ENDPOINT || "http://127.0.0.1:5000/api/v1/retrieval-augmented-generations");
+        const rag_url = new URL(process.env.RAG_RETRIEVAL_ENDPOINT || "http://127.0.0.1:8000/api/v1/retrieval-augmented-generations");
 
         rag_url.searchParams.set("prompt", text);
         rag_url.searchParams.set("url", url);
@@ -31,7 +31,7 @@ export async function createResponse(text: string, url: string) {
 
         const context = augmented_text;
 
-        const response_url = new URL(process.env.GENERATE_RESPONSE_ENDPOINT || "http://127.0.0.1:5000/api/v1/llm-response");
+        const response_url = new URL(process.env.GENERATE_RESPONSE_ENDPOINT || "http://127.0.0.1:8000/api/v1/llm-response");
         response_url.searchParams.set("text", augmented_text);
         response_url.searchParams.set("context", context);
 
