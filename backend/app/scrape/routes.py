@@ -1,9 +1,9 @@
 from flask import jsonify, request, make_response
-from backend.scrape import bp
-from backend.utils import verify_auth_header
+from app.scrape import bp
+from app.utils import verify_auth_header
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
-from backend.config import Config
+from app.config import Config
 
 AUTH = Config.BRIGHT_DATA_AUTH
 SBR_WS_CDP = Config.SBR_SW_CDP

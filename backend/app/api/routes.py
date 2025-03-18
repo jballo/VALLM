@@ -1,9 +1,9 @@
 from flask import jsonify, request, make_response
-from backend.api import bp
-from backend.utils import verify_auth_header, calculate_relevancy_score 
-from backend.extensions import groq_client, openai_client
+from app.api import bp
+from app.utils import verify_auth_header, calculate_relevancy_score 
+from app.extensions import groq_client, openai_client
 from psycopg2 import pool, Error
-from backend.config import Config
+from app.config import Config
 import groq
 import os
 
@@ -70,10 +70,19 @@ def llm_response():
         if auth_check != None:
             return auth_check
         
+        data = request.get_json()
+        # print("Data: ", data)
+
+        prompt = data['text']
+        contxt = data['context']
+
+        # print("\n\n\n\nPrompt: ", prompt)
+        # print("\n\n\n\nContext: ", contxt)
+        
         # Get the prompt from request
-        prompt = request.args.get('text')
-        contxt = request.args.get('context')
-        print("Text: ", prompt)
+        # prompt = request.args.get('text')
+        # contxt = request.args.get('context')
+        # print("Text: ", prompt)
 
         system_prompt = f"""
         I will provide you with information about a company's website, including sections like product pages, landing pages, FAQs, 'Contact Us,' pricing tables, testimonials, blogs, case studies, careers, company history, and more. Your task is to:
