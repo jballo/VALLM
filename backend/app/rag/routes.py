@@ -1,20 +1,15 @@
 from flask import jsonify, request, make_response
 from app.rag import bp
 from app.utils import verify_auth_header
-from sentence_transformers import SentenceTransformer
+from app.extensions import embedding_client
+from langchain_openai import OpenAIEmbeddings
 from pinecone import Pinecone
 from langchain.schema import Document
-# from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import PineconeVectorStore
 import os
 from app.config import Config
 
 pinecone_api_key = Config.PINECONE_API_KEY
-
-def get_huggingface_embeddings(text, model_name="sentence-transformers/all-mpnet-base-v2"):
-    model = SentenceTransformer(model_name)
-    return model.encode(text)
 
 
 @bp.route("/embed", methods=['POST'])
@@ -54,7 +49,7 @@ def generate_embeddings():
 
     vectorstore = PineconeVectorStore.from_documents(
         documents=documents,
-        embedding=HuggingFaceEmbeddings(),
+        embedding=OpenAIEmbeddings(model="text-embedding-3-small"),
         index_name="llmeval",
         namespace=url
     )
@@ -80,7 +75,7 @@ def rag_retrieve():
     print("Prompt: ", prompt)
     print("Url: ", url)
 
-    raw_query_embedding = get_huggingface_embeddings(prompt)
+    raw_query_embedding = embedding_client.embed_query(prompt)
 
     # Initalize Pinecone
     pc = Pinecone(api_key=pinecone_api_key)
@@ -88,7 +83,9 @@ def rag_retrieve():
     # Connect to Pinecone index
     pinecone_index = pc.Index("llmeval")
 
-    top_matches = pinecone_index.query(vector=raw_query_embedding.tolist(), top_k=5, include_metadata=True, namespace=url)
+    # top_matches = pinecone_index.query(vector=raw_query_embedding.tolist(), top_k=5, include_metadata=True, namespace=url)
+    top_matches = pinecone_index.query(vector=raw_query_embedding, top_k=5, include_metadata=True, namespace=url)
+    
 
     print("\n\n\n-------------Matches--------------\n\n\n")
     print(top_matches)
