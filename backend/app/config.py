@@ -10,6 +10,6 @@ class Config:
     GROQ_API_KEY = os.getenv('GROQ_API_KEY')
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
     BRIGHT_DATA_AUTH = os.getenv('BRIGHT_DATA_AUTH')
-    SBR_SW_CDP = f'https://{BRIGHT_DATA_AUTH}@brd.superproxy.io:9222'
+    SBR_SW_CDP = f'wss://{BRIGHT_DATA_AUTH}@brd.superproxy.io:9222'
     
 
