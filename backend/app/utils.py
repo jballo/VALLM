@@ -2,6 +2,12 @@ import json
 from flask import make_response, jsonify
 from app.extensions import groq_client
 from app.config import Config
+from deepeval import evaluate
+from deepeval.metrics import ContextualRelevancyMetric
+from deepeval.test_case import LLMTestCase
+from deepeval.dataset import EvaluationDataset
+
+
 
 api_key = Config.API_KEY
 
@@ -92,3 +98,37 @@ def calculate_relevancy_score(prompt, actual_output):
     # print(type(score))
     # print("Relevancy score: ", score)
     return score
+
+
+
+def deepeval_relevancy_score (prompt, actual_output, retrieval_context):
+    metric = ContextualRelevancyMetric(
+        threshold=0.7,
+        model="gpt-4o-mini",
+        include_reason=True
+    )
+
+    test_cases_list = []
+    for cntxt in retrieval_context:
+        # temp = [cntxt]
+        test_case = LLMTestCase(
+            input=prompt,
+            actual_output=actual_output,
+            retrieval_context=[cntxt]
+        )
+        test_cases_list.append(test_case)
+    print("test_cases_list: ", test_cases_list)
+    print("\n\n\n\n----------- DEEPEVAL SCORES--------\n\n\n\n")
+
+    result = evaluate(test_cases=test_cases_list, metrics=[metric], print_results=True, write_cache=False)
+    print("result: ", len(result.test_results))
+    score = 0
+    for res in result.test_results:
+        if res.success == True:
+             score += 1
+
+    success_rate = score / len(result.test_results)
+    print("Success rate: ", success_rate)
+
+    ("\n\n\n\n----------------------------------\n\n\n\n")
+    return success_rate

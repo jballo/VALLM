@@ -26,10 +26,19 @@ export async function createResponse(text: string, url: string) {
         const rag_result = await rag_response.json();
         console.log("Rag result: ", rag_result);
 
-        const augmented_text = rag_result.content;
-        console.log("Content from rag result passed onto create response: ", augmented_text);
+        const rag_content = rag_result.content;
 
-        const context = augmented_text;
+        const context = rag_content.augmented_query;
+
+        const retrieval_context = rag_content.retrieval_context;
+
+        console.log("context: ", context);
+
+        console.log("retrieval_context: ", retrieval_context);
+
+
+        // const context = augmented_text;
+        // const retrieval_context
 
         const response_url = new URL(process.env.GENERATE_RESPONSE_ENDPOINT || "http://127.0.0.1:8000/api/v1/llm-response");
         // response_url.searchParams.set("text", augmented_text);
@@ -43,8 +52,8 @@ export async function createResponse(text: string, url: string) {
                 Accept: "multipart/mixed",
             },
             body: JSON.stringify({ 
-                text: augmented_text,
-                context: context
+                text: context,
+                retrieval_context,
              })
         });
 
