@@ -103,10 +103,17 @@ def rag_retrieve():
     print(augmented_query)
     print("\n\n\n---------------------------------------\n\n\n")
 
+    rag_content = {
+        "augmented_query": augmented_query,
+        "retrieval_context": contexts
+    }
+
+    print("Rag content: ", rag_content)
+
     response_body = {
         "status": "success",
         "code": 200,
-        "content": augmented_query
+        "content": rag_content
     }
 
     return make_response(jsonify(response_body), 200)

@@ -1,6 +1,6 @@
 from flask import jsonify, request, make_response
 from app.api import bp
-from app.utils import verify_auth_header, calculate_relevancy_score 
+from app.utils import verify_auth_header, calculate_relevancy_score, deepeval_relevancy_score 
 from app.extensions import groq_client, openai_client
 import groq
     
@@ -17,10 +17,10 @@ def llm_response():
         # print("Data: ", data)
 
         prompt = data['text']
-        contxt = data['context']
+        contxt = data['retrieval_context']
 
-        # print("\n\n\n\nPrompt: ", prompt)
-        # print("\n\n\n\nContext: ", contxt)
+        print("\n\n\n\nPrompt: ", prompt)
+        print("\n\n\n\nContext: ", contxt)
         
         # Get the prompt from request
         # prompt = request.args.get('text')
@@ -172,7 +172,7 @@ def llm_response():
             ],
             model="llama-3.1-8b-instant",
         )
-        mixtral_completion = groq_client.chat.completions.create(
+        qwen_completion = groq_client.chat.completions.create(
             messages=[
                 {
                     "role": "system",
@@ -183,7 +183,7 @@ def llm_response():
                     "content": prompt,
                 }
             ],
-            model="mixtral-8x7b-32768",
+            model="qwen-qwq-32b",
         )
         gpt_completion = openai_client.chat.completions.create(
             messages=[
@@ -201,35 +201,39 @@ def llm_response():
         print("\n\n----------------------------\n\n\n\n")
         llama_versatile_response = llama_versatile_completion.choices[0].message.content
         print("llama-3.3-70b-versatile Response: ", llama_versatile_response, "\n\n\n")
+        llama_versatile_relevancy_score = deepeval_relevancy_score(prompt, llama_versatile_response, contxt)
         # calculate_coherence_score(prompt, llama_versatile_response)
         # calculate_toxicity_score(prompt, llama_versatile_response)
         # calculate_bias_score(prompt, llama_versatile_response)
         # calculate_promp_alignment_score(system_prompt, llama_versatile_response)
-        llama_versatile_relevancy_score = calculate_relevancy_score(prompt, llama_versatile_response)
+        # llama_versatile_relevancy_score = calculate_relevancy_score(prompt, llama_versatile_response)
 
         llama_instant_response = llama_instant_completion.choices[0].message.content
         print("llama-3.1-8b-instant Response: ", llama_instant_response, "\n\n\n")
+        llama_instant_relevancy_score = deepeval_relevancy_score(prompt, llama_instant_response, contxt)
         # calculate_coherence_score(prompt, llama_instant_response)
         # calculate_toxicity_score(prompt, llama_instant_response)
         # calculate_bias_score(prompt, llama_instant_response)
         # calculate_promp_alignment_score(system_prompt, llama_instant_response)
-        llama_instant_relevancy_score = calculate_relevancy_score(prompt, llama_instant_response)
+        # llama_instant_relevancy_score = calculate_relevancy_score(prompt, llama_instant_response)
 
-        mixtral_response = mixtral_completion.choices[0].message.content
-        print("mixtral-8x7b-32768 Response: ", mixtral_response, "\n\n\n")
+        qwen_response = qwen_completion.choices[0].message.content
+        print("qwen-qwq-32b Response: ", qwen_response, "\n\n\n")
+        qwen_relevancy_score = deepeval_relevancy_score(prompt, qwen_response, contxt)
         # calculate_coherence_score(prompt, mixtral_response)
         # calculate_toxicity_score(prompt, mixtral_response)
         # calculate_bias_score(prompt, mixtral_response)
         # calculate_promp_alignment_score(system_prompt, mixtral_response)
-        mixtral_relevancy_score = calculate_relevancy_score(prompt, mixtral_response)
+        # mixtral_relevancy_score = calculate_relevancy_score(prompt, mixtral_response)
 
         gpt_response = gpt_completion.choices[0].message.content
         print("gpt-4o-mini Response: ", gpt_response, "\n\n\n")
+        gpt_relevancy_score = deepeval_relevancy_score(prompt, gpt_response, contxt)
         # calculate_coherence_score(prompt, gpt_response)
         # calculate_toxicity_score(prompt, gpt_response)
         # calculate_bias_score(prompt, gpt_response)
         # calculate_promp_alignment_score(system_prompt, gpt_response)
-        gpt_relevancy_score = calculate_relevancy_score(prompt, gpt_response)
+        # gpt_relevancy_score = calculate_relevancy_score(prompt, gpt_response)
 
         print("\n\n\n\n----------------------------\n\n")
 
@@ -245,9 +249,9 @@ def llm_response():
                 "llm_relevancy_score": llama_instant_relevancy_score
             },
             {
-                "llm_name": "mixtral-8x7b-32768",
-                "llm_response": mixtral_response,
-                "llm_relevancy_score": mixtral_relevancy_score
+                "llm_name": "qwen-qwq-32b",
+                "llm_response": qwen_response,
+                "llm_relevancy_score": qwen_relevancy_score
             },
             {
                 "llm_name": "gpt-4o-mini",
