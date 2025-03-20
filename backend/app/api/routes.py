@@ -2,64 +2,7 @@ from flask import jsonify, request, make_response
 from app.api import bp
 from app.utils import verify_auth_header, calculate_relevancy_score 
 from app.extensions import groq_client, openai_client
-from psycopg2 import pool, Error
-from app.config import Config
 import groq
-import os
-
-connection_string = Config.DATABASE_URL
-
-@bp.route('/users', methods=['POST'])
-def create_user():
-    try:
-        header_api_key = request.headers.get("X-API-Key")
-        auth_check = verify_auth_header(header_api_key)
-        if auth_check != None:
-            return auth_check
-        
-        user_id = request.args.get('id')
-        user_username = request.args.get('username')
-        connection_pool = pool.SimpleConnectionPool(
-            1, # Minimum number of connections in the pool
-            10, # Maximum number of connections in the pool
-            connection_string
-        )
-        # Checkif the pool was created successfully
-        if connection_pool:
-            print("Connection pool created successfully")
-
-        # Get a connection form the pool
-        conn = connection_pool.getconn()
-
-        with conn:
-            # Create a cursor object
-            cur = conn.cursor()
-            # Execute SQL commands to retrieve the current time and version from PostgreSQL
-            sql = "INSERT INTO Users (Id, Username) VALUES (%s, %s);"
-            data = (user_id, user_username)
-            cur.execute(sql, data)
-
-        conn.close()
-        print("Successfully created: ", user_username)
-        
-        response_body = {
-            "status": "success",
-            "code": 200,
-            "content": "User has been created"
-        }
-        return make_response(jsonify(response_body), 200)
-    except Error as e:
-        print("Error created user. Error: ", e.pgerror)
-
-        # Set the connection to 'None' in case of error
-        conn = None
-        
-        response_body = {
-            "status": "failure",
-            "code": 500,
-            "error": e.pgerror
-        }
-        return make_response(jsonify(response_body), 500)
     
 
 @bp.route('/llm-response', methods=['POST'])
