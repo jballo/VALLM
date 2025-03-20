@@ -21,6 +21,9 @@ def create_app(config_class=Config):
     from app.rag import bp as rag_bp
     app.register_blueprint(rag_bp, url_prefix='/api/v1/retrieval-augmented-generations')
 
+    from app.websocket import bp as web_socket_bp
+    app.register_blueprint(web_socket_bp, url_prefix='/api/v1/websocket')
+
     # Add CORS
     CORS(app)
 
