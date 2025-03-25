@@ -4,6 +4,7 @@
 export async function createResponse(text: string, url: string) {
     console.log("Text in action: ", text);
     try {
+        const start = new Date().getTime();
         const rag_url = new URL(process.env.RAG_RETRIEVAL_ENDPOINT || "http://127.0.0.1:8000/api/v1/retrieval-augmented-generations");
 
         rag_url.searchParams.set("prompt", text);
@@ -24,7 +25,7 @@ export async function createResponse(text: string, url: string) {
         }
 
         const rag_result = await rag_response.json();
-        console.log("Rag result: ", rag_result);
+        // console.log("Rag result: ", rag_result);
 
         const rag_content = rag_result.content;
 
@@ -32,9 +33,9 @@ export async function createResponse(text: string, url: string) {
 
         const retrieval_context = rag_content.retrieval_context;
 
-        console.log("context: ", context);
+        // console.log("context: ", context);
 
-        console.log("retrieval_context: ", retrieval_context);
+        // console.log("retrieval_context: ", retrieval_context);
 
 
         // const context = augmented_text;
@@ -64,7 +65,10 @@ export async function createResponse(text: string, url: string) {
         }
 
         const response_result = await response.json();
-        console.log("Result: ", response_result);
+        // console.log("Result: ", response_result);
+
+        const elapsed = new Date().getTime() - start;
+        console.log("Elapsed time: ", elapsed);
 
         return {
             success: true,
