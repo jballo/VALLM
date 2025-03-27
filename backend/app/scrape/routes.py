@@ -8,7 +8,7 @@ from app.config import Config
 AUTH = Config.BRIGHT_DATA_AUTH
 SBR_WS_CDP = Config.SBR_SW_CDP
 
-@bp.route("/", methods=['POST'])
+@bp.route("", methods=['POST'])
 def scrape_url():
     # Verify the request is authenticated
     header_api_key = request.headers.get('X-API-Key')
