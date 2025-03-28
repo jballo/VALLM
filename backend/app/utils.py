@@ -286,6 +286,7 @@ def generate_response(model, prompt, context):
                 }
             ],
             model="llama-3.3-70b-versatile",
+            max_tokens=60
         )
 
         llama_versatile_response = llama_versatile_completion.choices[0].message.content
@@ -312,6 +313,7 @@ def generate_response(model, prompt, context):
                 }
             ],
             model="llama-3.1-8b-instant",
+            max_tokens=60
         )
         llama_instant_response = llama_instant_completion.choices[0].message.content
         llama_instant_relevancy_score = deepeval_relevancy_score(prompt, llama_instant_response, context)
@@ -330,6 +332,7 @@ def generate_response(model, prompt, context):
                 }
             ],
             model="qwen-qwq-32b",
+            # max_tokens=60
         )
         qwen_response = qwen_completion.choices[0].message.content
         qwen_relevancy_score = deepeval_relevancy_score(prompt, qwen_response, context)
