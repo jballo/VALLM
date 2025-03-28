@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import TextComparisonGrid from './text-comparison-grid'
 import TestCaseInput from './test-case-input'
+import Results from './results'
 
 interface TestCase {
   id: string
@@ -63,14 +63,17 @@ export default function LLMResponseComparison({createResponse, url}: CreateRespo
       </Card>
       
       {testCaseResults.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Test Results</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TextComparisonGrid testCaseResults={testCaseResults} />
-          </CardContent>
-        </Card>
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Test Results</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Results testCaseResults={testCaseResults} />
+              {/* <TextComparisonGrid testCaseResults={testCaseResults} /> */}
+            </CardContent>
+          </Card>
+        </>
       )}
     </div>
   )
