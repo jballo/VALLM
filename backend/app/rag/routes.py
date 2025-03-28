@@ -62,7 +62,7 @@ def generate_embeddings():
 
     return make_response(jsonify(response_body), 200)
 
-@bp.route("/", methods=['POST'])
+@bp.route("", methods=['POST'])
 def rag_retrieve():
     header_api_key = request.headers.get('X-API-Key')
     auth_check = verify_auth_header(header_api_key)
