@@ -6,6 +6,7 @@ from deepeval import evaluate
 from deepeval.metrics import ContextualRelevancyMetric
 from deepeval.test_case import LLMTestCase
 from deepeval.dataset import EvaluationDataset
+import groq
 
 
 
@@ -266,106 +267,139 @@ def generate_response(model, prompt, context):
         
     """
 
-    print("\n\n\n\nmodel: ", model)
-    model_name = model
-    model_response = ""
-    relevancy_score = 0
+    try:
 
-
-
-    if model == "llama-3.3-70b-versatile":
-        llama_versatile_completion = groq_client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            model="llama-3.3-70b-versatile",
-            max_tokens=60
-        )
-
-        llama_versatile_response = llama_versatile_completion.choices[0].message.content
-        llama_versatile_relevancy_score = deepeval_relevancy_score(prompt, llama_versatile_response, context)
-
-        model_response = llama_versatile_response
-        relevancy_score = llama_versatile_relevancy_score
-        # llama_versatile_relevancy_score = deepeval_relevancy_score(prompt, llama_versatile_response, contxt)
-        # calculate_coherence_score(prompt, llama_versatile_response)
-        # calculate_toxicity_score(prompt, llama_versatile_response)
-        # calculate_bias_score(prompt, llama_versatile_response)
-        # calculate_promp_alignment_score(system_prompt, llama_versatile_response)
-    
-    elif model == "llama-3.1-8b-instant":
-        llama_instant_completion = groq_client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            model="llama-3.1-8b-instant",
-            max_tokens=60
-        )
-        llama_instant_response = llama_instant_completion.choices[0].message.content
-        llama_instant_relevancy_score = deepeval_relevancy_score(prompt, llama_instant_response, context)
-        model_response = llama_instant_response
-        relevancy_score = llama_instant_relevancy_score
-    elif model == "qwen-qwq-32b":
-        qwen_completion = groq_client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            model="qwen-qwq-32b",
-            # max_tokens=60
-        )
-        qwen_response = qwen_completion.choices[0].message.content
-        qwen_relevancy_score = deepeval_relevancy_score(prompt, qwen_response, context)
-        model_response = qwen_response
-        relevancy_score = qwen_relevancy_score
-    elif model == "gpt-4o-mini":
-        gpt_completion = openai_client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            model="gpt-4o-mini",
-        )
-        gpt_response = gpt_completion.choices[0].message.content
-        gpt_relevancy_score = deepeval_relevancy_score(prompt, gpt_response, context)
-        model_response = gpt_response
-        relevancy_score = gpt_relevancy_score
-    else:
-        model_name = ""
-        model_response = "No response. Model unknown"
+        print("\n\n\n\nmodel: ", model)
+        model_name = model
+        model_response = ""
         relevancy_score = 0
 
 
-    return {
-        "llm_name": model_name,
-        "llm_response": model_response,
-        "llm_relevancy_score": relevancy_score,
-    }
+
+        if model == "llama-3.3-70b-versatile":
+            llama_versatile_completion = groq_client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                model="llama-3.3-70b-versatile",
+                max_tokens=60
+            )
+
+            llama_versatile_response = llama_versatile_completion.choices[0].message.content
+            llama_versatile_relevancy_score = deepeval_relevancy_score(prompt, llama_versatile_response, context)
+
+            model_response = llama_versatile_response
+            relevancy_score = llama_versatile_relevancy_score
+            # llama_versatile_relevancy_score = deepeval_relevancy_score(prompt, llama_versatile_response, contxt)
+            # calculate_coherence_score(prompt, llama_versatile_response)
+            # calculate_toxicity_score(prompt, llama_versatile_response)
+            # calculate_bias_score(prompt, llama_versatile_response)
+            # calculate_promp_alignment_score(system_prompt, llama_versatile_response)
+        
+        elif model == "llama-3.1-8b-instant":
+            llama_instant_completion = groq_client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                model="llama-3.1-8b-instant",
+                max_tokens=60
+            )
+            llama_instant_response = llama_instant_completion.choices[0].message.content
+            llama_instant_relevancy_score = deepeval_relevancy_score(prompt, llama_instant_response, context)
+            model_response = llama_instant_response
+            relevancy_score = llama_instant_relevancy_score
+        elif model == "qwen-qwq-32b":
+            qwen_completion = groq_client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                model="qwen-qwq-32b",
+                # max_tokens=60
+            )
+            qwen_response = qwen_completion.choices[0].message.content
+            qwen_relevancy_score = deepeval_relevancy_score(prompt, qwen_response, context)
+            model_response = qwen_response
+            relevancy_score = qwen_relevancy_score
+        elif model == "qwen-2.5-32b":
+            qwen_completion = groq_client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                model="qwen-2.5-32b",
+                # max_tokens=60
+            )
+            qwen_response = qwen_completion.choices[0].message.content
+            qwen_relevancy_score = deepeval_relevancy_score(prompt, qwen_response, context)
+            model_response = qwen_response
+            relevancy_score = qwen_relevancy_score
+        elif model == "gpt-4o-mini":
+            gpt_completion = openai_client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                model="gpt-4o-mini",
+            )
+            gpt_response = gpt_completion.choices[0].message.content
+            gpt_relevancy_score = deepeval_relevancy_score(prompt, gpt_response, context)
+            model_response = gpt_response
+            relevancy_score = gpt_relevancy_score
+        else:
+            model_name = ""
+            model_response = "No response. Model unknown"
+            relevancy_score = 0
+
+
+        return {
+            "llm_name": model_name,
+            "llm_response": model_response,
+            "llm_relevancy_score": relevancy_score,
+        }
+    
+    except groq.APIConnectionError as e:
+        print("The server could not be reached")
+        print(e.__cause__)  # an underlying Exception, likely raised within httpx.
+    
+    except groq.RateLimitError as e:
+        print("A 429 status code was received; we should back off a bit.")
+    
+    except groq.APIStatusError as e:
+        print("Another non-200-range status code was received")
+        print(e.status_code)
+        print(e.response)
     
     

@@ -21,7 +21,8 @@ def llm_response():
         
 
         with Pool(4) as p:
-            llm_responses = p.starmap(generate_response, [("llama-3.3-70b-versatile", prompt, contxt), ("llama-3.1-8b-instant", prompt, contxt), ("qwen-qwq-32b", prompt, contxt), ("gpt-4o-mini", prompt, contxt)])
+            llm_responses = p.starmap(generate_response, [("llama-3.3-70b-versatile", prompt, contxt), ("llama-3.1-8b-instant", prompt, contxt), ("qwen-2.5-32b", prompt, contxt), ("gpt-4o-mini", prompt, contxt)])
+
 
             pprint.pp(llm_responses)
 
@@ -35,6 +36,7 @@ def llm_response():
             }
 
             return jsonify(response_body)
+    
 
     except groq.APIConnectionError as e:
         print("The server could not be reached")
