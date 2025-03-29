@@ -393,13 +393,29 @@ def generate_response(model, prompt, context):
     except groq.APIConnectionError as e:
         print("The server could not be reached")
         print(e.__cause__)  # an underlying Exception, likely raised within httpx.
+        return {
+            "llm_name": model,
+            "llm_response": "Server could not be reached.",
+            "llm_relevancy_score": 0,
+        }
     
     except groq.RateLimitError as e:
         print("A 429 status code was received; we should back off a bit.")
+        return {
+            "llm_name": model,
+            "llm_response": "A 429 status code was received; we should back off a bit.",
+            "llm_relevancy_score": 0,
+        }
     
     except groq.APIStatusError as e:
         print("Another non-200-range status code was received")
         print(e.status_code)
         print(e.response)
+        return {
+            "llm_name": model,
+            "llm_response": "Non-200-range status code was received",
+            "llm_relevancy_score": 0,
+        }
+        
     
     
