@@ -21,7 +21,8 @@ def llm_response():
         
 
         with Pool(4) as p:
-            llm_responses = p.starmap(generate_response, [("llama-3.3-70b-versatile", prompt, contxt), ("llama-3.1-8b-instant", prompt, contxt), ("qwen-qwq-32b", prompt, contxt), ("gpt-4o-mini", prompt, contxt)])
+            llm_responses = p.starmap(generate_response, [("llama-3.3-70b-versatile", prompt, contxt), ("llama-3.1-8b-instant", prompt, contxt), ("qwen-2.5-32b", prompt, contxt), ("gpt-4o-mini", prompt, contxt)])
+
 
             pprint.pp(llm_responses)
 
@@ -35,36 +36,13 @@ def llm_response():
             }
 
             return jsonify(response_body)
-
-    except groq.APIConnectionError as e:
-        print("The server could not be reached")
-        print(e.__cause__)  # an underlying Exception, likely raised within httpx.
-        response_body = {
-            "status": "success",
-            "code": 500,
-            "error": "Server could not be reached"
-        }
-
-        return make_response(jsonify(response_body), 500)
     
-    except groq.RateLimitError as e:
-        print("A 429 status code was received; we should back off a bit.")
-        response_body = {
-            "status": "success",
-            "code": 429,
-            "error": "Rate limit. Retry later."
-        }
-
-        return make_response(jsonify(response_body), 429)
-    
-    except groq.APIStatusError as e:
-        print("Another non-200-range status code was received")
-        print(e.status_code)
-        print(e.response)
+    except:
         response_body = {
             "status": "failure",
-            "code": e.status_code,
-            "error": e.response
+            "code": 500,
+            "error": "Error produced"
         }
 
         return make_response(jsonify(response_body), 500)
+    

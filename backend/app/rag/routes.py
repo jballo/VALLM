@@ -84,7 +84,7 @@ def rag_retrieve():
     pinecone_index = pc.Index("llmeval")
 
     # top_matches = pinecone_index.query(vector=raw_query_embedding.tolist(), top_k=5, include_metadata=True, namespace=url)
-    top_matches = pinecone_index.query(vector=raw_query_embedding, top_k=5, include_metadata=True, namespace=url)
+    top_matches = pinecone_index.query(vector=raw_query_embedding, top_k=3, include_metadata=True, namespace=url)
     
 
     print("\n\n\n-------------Matches--------------\n\n\n")
