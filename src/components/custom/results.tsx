@@ -9,7 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 interface LLMResponses {
     llm_name: string;
     llm_response: string;
-    llm_relevancy_score: number;
+    contextual_relevancy_score: number;
+    answer_relevancy_score: number;
+    bias_success_score: number;
+    toxicity_success_score: number;
 }
 
 interface TestCaseResult {
@@ -68,8 +71,15 @@ export default function Results({ testCaseResults }: ResultsProps){
                                                 <div>
                                                     <h2 className="text-lg">Output:</h2>
                                                     <p className="text-md">{response.llm_response}</p>
-                                                    <h2>Relevancy Score:</h2>
-                                                    <p className="text-md">{response.llm_relevancy_score}</p>
+                                                    <h2>Contextual Relevancy Score:</h2>
+                                                    <p className="text-md">{response.contextual_relevancy_score}</p>
+                                                    <h2>Answer Relevancy Score:</h2>
+                                                    <p className="text-md">{response.answer_relevancy_score}</p>
+                                                    <h2>Bias Success Score:</h2>
+                                                    <p className="text-md">{response.bias_success_score}</p>
+                                                    <p className="text-md">{response.answer_relevancy_score}</p>
+                                                    <h2>Toxicity Success Score:</h2>
+                                                    <p className="text-md">{response.toxicity_success_score}</p>
                                                 </div>
                                                 <div className="">
                                                     <ChartContainer config={chartConfig}>

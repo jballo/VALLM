@@ -8,7 +8,10 @@ import LLMResponseComparison from "./llm-response-comparison";
 interface LLMResponses {
     llm_name: string;
     llm_response: string;
-    llm_relevancy_score: number;
+    contextual_relevancy_score: number;
+    answer_relevancy_score: number;
+    bias_success_score: number;
+    toxicity_success_score: number;
 }
 
 interface CreateResponseProps {
