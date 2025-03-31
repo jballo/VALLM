@@ -1,55 +1,62 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import TestCaseInput from './test-case-input'
-import Results from './results'
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import TestCaseInput from "./test-case-input";
+import Results from "./results";
 
 interface TestCase {
-  id: string
-  prompt: string
-  expectedOutput: string
+  id: string;
+  prompt: string;
+  expectedOutput: string;
 }
 
 interface LLMResponses {
-    llm_name: string;
-    llm_response: string;
-    llm_relevancy_score: number;
+  llm_name: string;
+  llm_response: string;
+  llm_relevancy_score: number;
 }
 
 interface CreateResponseProps {
-    createResponse: (
-        text: string,
-        url: string
-    ) => Promise<{ success: boolean; response?: LLMResponses[]; error?: string;}>
+  createResponse: (
+    text: string,
     url: string
+  ) => Promise<{ success: boolean; response?: LLMResponses[]; error?: string }>;
+  url: string;
 }
-
 
 interface TestCaseResult {
-  testCaseId: string
-  prompt: string
-  expectedOutput: string
-  responses: LLMResponses[]
+  testCaseId: string;
+  prompt: string;
+  expectedOutput: string;
+  responses: LLMResponses[];
 }
 
-export default function LLMResponseComparison({createResponse, url}: CreateResponseProps) {
-  const [testCaseResults, setTestCaseResults] = useState<TestCaseResult[]>([])
+export default function LLMResponseComparison({
+  createResponse,
+  url,
+}: CreateResponseProps) {
+  const [testCaseResults, setTestCaseResults] = useState<TestCaseResult[]>([]);
 
   const handleTestCaseSubmit = async (testCases: TestCase[]) => {
-    const results = await Promise.all(testCases.map(async (testCase) => {
-    //   const responses = await simulateLLMResponses(testCase.prompt,)
-      const response = await createResponse(testCase.prompt, url);
+    setTestCaseResults([]);
+    testCases.forEach(async (test) => {
+      console.log("test: ", test);
+      const response = await createResponse(test.prompt, url);
       const responses = response.response || [];
-      return {
-        testCaseId: testCase.id,
-        prompt: testCase.prompt,
-        expectedOutput: testCase.expectedOutput,
-        responses
-      }
-    }))
-    setTestCaseResults(results);
-  }
+
+      const result = {
+        testCaseId: test.id,
+        prompt: test.prompt,
+        expectedOutput: test.expectedOutput,
+        responses,
+      };
+      // const tempArr = [...testCaseResults, result];
+      // console.log("TempArr: ", tempArr);
+
+      setTestCaseResults((results) => [...results, result]);
+    });
+  };
 
   return (
     <div className="container mx-auto p-4 space-y-8">
@@ -61,7 +68,7 @@ export default function LLMResponseComparison({createResponse, url}: CreateRespo
           <TestCaseInput onSubmit={handleTestCaseSubmit} />
         </CardContent>
       </Card>
-      
+
       {testCaseResults.length > 0 && (
         <>
           <Card>
@@ -76,6 +83,5 @@ export default function LLMResponseComparison({createResponse, url}: CreateRespo
         </>
       )}
     </div>
-  )
+  );
 }
-
