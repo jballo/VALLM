@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import TestCaseInput from "./test-case-input";
 import Results from "./results";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 interface TestCase {
   id: string;
@@ -25,38 +26,37 @@ interface CreateResponseProps {
   url: string;
 }
 
-interface TestCaseResult {
-  testCaseId: string;
-  prompt: string;
-  expectedOutput: string;
-  responses: LLMResponses[];
-}
+// interface TestCaseResult {
+//   testCaseId: string;
+//   prompt: string;
+//   expectedOutput: string;
+//   responses: LLMResponses[];
+// }
 
 export default function LLMResponseComparison({
   createResponse,
   url,
 }: CreateResponseProps) {
-  const [testCaseResults, setTestCaseResults] = useState<TestCaseResult[]>([]);
+  // const [testCaseResults, setTestCaseResults] = useState<TestCaseResult[]>([]);
+  const [submittedTests, setSubmittedTests] = useState<TestCase[]>([]);
 
-  const handleTestCaseSubmit = async (testCases: TestCase[]) => {
-    setTestCaseResults([]);
-    testCases.forEach(async (test) => {
-      console.log("test: ", test);
-      const response = await createResponse(test.prompt, url);
-      const responses = response.response || [];
+  // const handleTestCaseSubmit = async (testCases: TestCase[]) => {
+  //   setTestCaseResults([]);
+  //   testCases.forEach(async (test) => {
+  //     console.log("test: ", test);
+  //     const response = await createResponse(test.prompt, url);
+  //     const responses = response.response || [];
 
-      const result = {
-        testCaseId: test.id,
-        prompt: test.prompt,
-        expectedOutput: test.expectedOutput,
-        responses,
-      };
-      // const tempArr = [...testCaseResults, result];
-      // console.log("TempArr: ", tempArr);
+  //     const result = {
+  //       testCaseId: test.id,
+  //       prompt: test.prompt,
+  //       expectedOutput: test.expectedOutput,
+  //       responses,
+  //     };
 
-      setTestCaseResults((results) => [...results, result]);
-    });
-  };
+  //     setTestCaseResults((results) => [...results, result]);
+  //   });
+  // };
 
   return (
     <div className="container mx-auto p-4 space-y-8">
@@ -65,22 +65,35 @@ export default function LLMResponseComparison({
           <CardTitle>LLM Response Comparison</CardTitle>
         </CardHeader>
         <CardContent>
-          <TestCaseInput onSubmit={handleTestCaseSubmit} />
+          <TestCaseInput setSubmittedTests={setSubmittedTests} />
         </CardContent>
       </Card>
-
-      {testCaseResults.length > 0 && (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle>Test Results</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Results testCaseResults={testCaseResults} />
-              {/* <TextComparisonGrid testCaseResults={testCaseResults} /> */}
-            </CardContent>
-          </Card>
-        </>
+      {submittedTests.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Test Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue={submittedTests[0].id}>
+              <TabsList>
+                {submittedTests.map((test, index) => (
+                  <TabsTrigger key={index} value={test.id}>
+                    Result {index + 1}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {submittedTests.map((test, index) => (
+                <Results
+                  key={test.id}
+                  index={index}
+                  url={url}
+                  test={test}
+                  createResponse={createResponse}
+                />
+              ))}
+            </Tabs>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
