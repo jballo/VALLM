@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import TestCaseInput from "./test-case-input";
 import Results from "./results";
@@ -26,37 +26,22 @@ interface CreateResponseProps {
   url: string;
 }
 
-// interface TestCaseResult {
-//   testCaseId: string;
-//   prompt: string;
-//   expectedOutput: string;
-//   responses: LLMResponses[];
-// }
-
 export default function LLMResponseComparison({
   createResponse,
   url,
 }: CreateResponseProps) {
-  // const [testCaseResults, setTestCaseResults] = useState<TestCaseResult[]>([]);
   const [submittedTests, setSubmittedTests] = useState<TestCase[]>([]);
+  const [resultTab, setResultTab] = useState<string>("");
 
-  // const handleTestCaseSubmit = async (testCases: TestCase[]) => {
-  //   setTestCaseResults([]);
-  //   testCases.forEach(async (test) => {
-  //     console.log("test: ", test);
-  //     const response = await createResponse(test.prompt, url);
-  //     const responses = response.response || [];
+  const onTabChange = (value: string) => {
+    setResultTab(value);
+  };
 
-  //     const result = {
-  //       testCaseId: test.id,
-  //       prompt: test.prompt,
-  //       expectedOutput: test.expectedOutput,
-  //       responses,
-  //     };
-
-  //     setTestCaseResults((results) => [...results, result]);
-  //   });
-  // };
+  useEffect(() => {
+    if (resultTab.length > 0) {
+      onTabChange(resultTab);
+    }
+  }, [resultTab]);
 
   return (
     <div className="container mx-auto p-4 space-y-8">
@@ -65,16 +50,19 @@ export default function LLMResponseComparison({
           <CardTitle>LLM Response Comparison</CardTitle>
         </CardHeader>
         <CardContent>
-          <TestCaseInput setSubmittedTests={setSubmittedTests} />
+          <TestCaseInput
+            setSubmittedTests={setSubmittedTests}
+            setResultTab={setResultTab}
+          />
         </CardContent>
       </Card>
-      {submittedTests.length > 0 && (
+      {submittedTests.length > 0 && resultTab.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Test Results</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue={submittedTests[0].id}>
+            <Tabs value={resultTab} onValueChange={setResultTab}>
               <TabsList>
                 {submittedTests.map((test, index) => (
                   <TabsTrigger key={index} value={test.id}>

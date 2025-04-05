@@ -17,10 +17,12 @@ interface TestCase {
 
 interface TestCaseInputProps {
   setSubmittedTests: (testCases: TestCase[]) => void;
+  setResultTab: (defaultTab: string) => void;
 }
 
 export default function TestCaseInput({
   setSubmittedTests,
+  setResultTab,
 }: TestCaseInputProps) {
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [tabVal, setTabVal] = useState<string>("");
@@ -58,7 +60,9 @@ export default function TestCaseInput({
     if (validTestCases.length > 0) {
       // onSubmit(validTestCases);
       console.log("Valid test cases: ", validTestCases);
+      // setSubmittedTests([]);
       setSubmittedTests(validTestCases);
+      setResultTab(validTestCases[0].id);
       const id = uuidv4();
       setTestCases([{ id: id, prompt: "", expectedOutput: "" }]);
       setTabVal(id);
