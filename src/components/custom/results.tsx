@@ -41,10 +41,6 @@ interface ResultsProps {
   index: number;
   url: string;
   test: TestCase;
-  createResponse: (
-    text: string,
-    url: string
-  ) => Promise<{ success: boolean; response?: LLMResponses[]; error?: string }>;
 }
 
 const chartData = [
@@ -66,19 +62,54 @@ export default function Results({
   index,
   url,
   test,
-  createResponse,
 }: ResultsProps) {
   const [resultsData, setResultsData] = useState<LLMResponses[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       console.log("Test: ", test);
-      const response = await createResponse(test.prompt, url);
+      // const response = await createResponse(test.prompt, url);
 
-      if (response.error || !response.response) {
-        return;
+      // if (response.error || !response.response) {
+      //   return;
+      // }
+      // console.log("Response: ", response.response);
+      try {
+        const text = test.prompt;
+  
+        const response = await fetch('/api/create-response', {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text, url })
+        })
+  
+        if (!response.ok) {
+          console.log("Error for response");
+        }
+  
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+  
+        if (!reader) {
+          throw new Error(`No reader available for response`);
+        }
+        while (true) {
+          const { value, done } = await reader.read();
+          if ( done ) {
+            console.log("Stream complete");
+            break;
+          }
+          console.log("Received...");
+          const chunk = decoder.decode(value);
+          const data = JSON.parse(chunk);
+          console.log("Data: ", data);
+          // setResultsData(data);
+        }
+      } catch (error) {
+        console.log("Error: ", error);
       }
-      setResultsData(response.response);
     };
     fetchData();
   }, []);

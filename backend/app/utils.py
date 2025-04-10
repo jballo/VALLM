@@ -110,7 +110,7 @@ def deepeval_relevancy_score (prompt, actual_output, retrieval_context):
     metric = ContextualRelevancyMetric(
         threshold=0.7,
         model="gpt-4o-mini",
-        # include_reason=True
+        include_reason=False
     )
 
     test_cases_list = []
@@ -128,7 +128,7 @@ def deepeval_relevancy_score (prompt, actual_output, retrieval_context):
     result = evaluate(
         test_cases=test_cases_list, 
         metrics=[metric], 
-        # print_results=True, 
+        print_results=False, 
         write_cache=False
     )
     # print("result: ", len(result.test_results))
@@ -147,6 +147,7 @@ def deepeval_relevancy_score (prompt, actual_output, retrieval_context):
 
 
 def generate_response(model, prompt, context):
+    print("Generating response...")
 
     system_prompt = f"""
     I will provide you with information about a company's website, including sections like product pages, landing pages, FAQs, 'Contact Us,' pricing tables, testimonials, blogs, case studies, careers, company history, and more. Your task is to:

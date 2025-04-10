@@ -3,11 +3,13 @@ from app.api import bp
 from app.utils import verify_auth_header, calculate_relevancy_score, deepeval_relevancy_score, generate_response
 from app.extensions import groq_client, openai_client
 import groq
-from multiprocessing import Pool
+from multiprocessing import Pool, Lock
 import pprint
 import json
 
 
+# Initalize a lock
+lock = Lock()
 
 def process_llm_request(args):
     """Helper function to process LLM requests"""
@@ -45,8 +47,11 @@ def llm_response():
             with Pool(4) as p:
                 results = p.imap_unordered(process_llm_request, models_list)
                 for result in results:
-                    models_result[result["llm_name"]] = result
-                    yield f"data: {json.dumps(models_result)}\n\n"
+                    with lock:
+                        models_result[result["llm_name"]] = result
+                        # print("Result: ", models_result)
+                        pprint.pp(models_result)
+                        yield f"data: {json.dumps(models_result)}\n\n"
 
 
         return Response(
