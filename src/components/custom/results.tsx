@@ -103,9 +103,17 @@ export default function Results({
           }
           console.log("Received...");
           const chunk = decoder.decode(value);
-          const data = JSON.parse(chunk);
-          console.log("Data: ", data);
+          const arr = chunk.split("\n");
+          console.log("Arr: ", arr);
+          const jsonArr = arr.filter(item => item.length > 0).map((item) => {
+              return JSON.parse(item);
+          });
+          console.log("JSON Arr: ", jsonArr);
+          // const data = JSON.parse(chunk);
+          // console.log("Data: ", data);
+          
           // setResultsData(data);
+          setResultsData(jsonArr);
         }
       } catch (error) {
         console.log("Error: ", error);

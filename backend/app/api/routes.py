@@ -35,23 +35,19 @@ def llm_response():
             ("gpt-4o-mini", prompt, contxt)
         ]
 
-        models_result = {
-            "llama-3.3-70b-versatile": None,
-            "llama-3.1-8b-instant": None,
-            "qwen-2.5-32b": None,
-            "gpt-4o-mini": None
-        }
-        
-
         def generate():
             with Pool(4) as p:
-                results = p.imap_unordered(process_llm_request, models_list)
+                results = p.map(process_llm_request, models_list)
                 for result in results:
-                    with lock:
-                        models_result[result["llm_name"]] = result
-                        # print("Result: ", models_result)
-                        pprint.pp(models_result)
-                        yield f"data: {json.dumps(models_result)}\n\n"
+                    # print(result)
+                    print("----------------------------")
+                    pprint.pp(result)
+                    print("----------------------------")
+                    yield f"{json.dumps(result)}\n"
+                # for result in results:
+                #     with lock:
+                #         pprint.pp(result)
+                #         yield f"data: {json.dumps(result)}\n\n"
 
 
         return Response(

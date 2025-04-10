@@ -81,12 +81,17 @@ export async function POST(request: Request) {
                     }
                     console.log("Received...");
                     const chunk = decoder.decode(value);
-                    const jsonString = chunk?.slice(6);
-                    const data = JSON.parse(jsonString || "");
-                    console.log("Data: ", data);
-
+                    console.log("Chunk: ", chunk);
+                    // const jsonString = chunk.slice(6);
+                    // const arr = chunk.split("\n");
+                    // console.log("Arr: ", arr);
+                    // const jsonString = 
+                    // const data = JSON.parse(jsonString || "{}");
+                    // console.log("Data: ", data);
+                    // const data = arr;
                     // Write the processed data to the stream
-                    await writer.write(encoder.encode(JSON.stringify(data)));
+                    // await writer.write(encoder.encode(JSON.stringify(data)));
+                    await writer.write(encoder.encode(chunk));
                 }
             } catch (error) {
                 console.error("Stream processing error: ", error);
