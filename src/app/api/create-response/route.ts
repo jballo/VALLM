@@ -58,17 +58,41 @@ export async function POST(request: Request) {
             throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
         // Create a TransformStream for processing the data
-        const stream = new TransformStream();
-        const writer = stream.writable.getWriter();
+        // const stream = new TransformStream();
+        // const writer = stream.writable.getWriter();
 
-        const reader = response.body?.getReader();
         const encoder = new TextEncoder();
-        const decoder = new TextDecoder();
+        // const decoder = new TextDecoder();
+        
+        
+        // Create a TransformStram to process the data
+        const stream = new TransformStream({
+            transform: async (chunk, controller) => {
+                // Each chunk needs to be formatted as an SSE event
+                const text = new TextDecoder().decode(chunk);
+                
+                // Split by newlines in case multiple JSON objects are received
+                const lines = text.split('\n');
+                console.log("Lines: ", lines);
 
+
+                for ( const line of lines ) {
+                    if (line.trim()) {
+                        // controller.enqueue(encoder.encode(line));
+                        controller.enqueue(encoder.encode(`data: ${line.trim()}`));
+                    }
+                }
+                
+            }
+        });
+        
+        const reader = response.body?.getReader();
         if(!reader) {
             throw new Error("No reader available");
         }
 
+        // Get a single writer instance
+        const writer = stream.writable.getWriter();
     
         // Process the stream server-side
         (async () => {
@@ -79,26 +103,25 @@ export async function POST(request: Request) {
                         console.log("Stream complete");
                         break;
                     }
-                    console.log("Received...");
-                    const chunk = decoder.decode(value);
-                    console.log("Chunk: ", chunk);
-                    // const jsonString = chunk.slice(6);
-                    // const arr = chunk.split("\n");
-                    // console.log("Arr: ", arr);
-                    // const jsonString = 
-                    // const data = JSON.parse(jsonString || "{}");
-                    // console.log("Data: ", data);
-                    // const data = arr;
-                    // Write the processed data to the stream
-                    // await writer.write(encoder.encode(JSON.stringify(data)));
-                    await writer.write(encoder.encode(chunk));
+                    // console.log("Received...");
+                    // const chunk = decoder.decode(value);
+                    // console.log("Chunk: ", chunk);
+                    // const returnChunk = `data: ${chunk}\n\n`;
+                    // await writer.write(encoder.encode(returnChunk));
+
+                    // await stream.writable.getWriter().write(value);
+                    // add delay for 2 minute
+                    await writer.write(value);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             } catch (error) {
                 console.error("Stream processing error: ", error);
             } finally {
+                // await stream.writable.getWriter().close();
                 await writer.close();
             }
         })();
+
 
         // return NextResponse.json({ content: "Random", }, {status: 200});
 

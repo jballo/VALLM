@@ -65,8 +65,7 @@ export default function Results({
 }: ResultsProps) {
   const [resultsData, setResultsData] = useState<LLMResponses[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
       console.log("Test: ", test);
       // const response = await createResponse(test.prompt, url);
 
@@ -80,7 +79,7 @@ export default function Results({
         const response = await fetch('/api/create-response', {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "text/event-stream",
           },
           body: JSON.stringify({ text, url })
         })
@@ -103,23 +102,29 @@ export default function Results({
           }
           console.log("Received...");
           const chunk = decoder.decode(value);
-          const arr = chunk.split("\n");
-          console.log("Arr: ", arr);
-          const jsonArr = arr.filter(item => item.length > 0).map((item) => {
-              return JSON.parse(item);
+          console.log("Chunk: ", chunk);
+          const chunkList = chunk.split("data: ");
+          console.log("Chunk List: ", chunkList);
+          const jsonList: LLMResponses[] = chunkList.filter((chunk) => chunk.length > 0).map((chunk) => {
+            const chunkJson = JSON.parse(chunk);
+            const resp = {
+                llm_name: chunkJson.llm_name,
+                llm_response: chunkJson.llm_response,
+                llm_relevancy_score: chunkJson.llm_relevancy_score,
+
+            }
+            return resp
           });
-          console.log("JSON Arr: ", jsonArr);
-          // const data = JSON.parse(chunk);
-          // console.log("Data: ", data);
-          
-          // setResultsData(data);
-          setResultsData(jsonArr);
+          setResultsData((prev) => [...prev, ...jsonList])
         }
       } catch (error) {
         console.log("Error: ", error);
       }
     };
+
+  useEffect(() => {
     fetchData();
+    setResultsData([]);
   }, []);
 
   return (
