@@ -12,22 +12,11 @@ interface TestCase {
   expectedOutput: string;
 }
 
-interface LLMResponses {
-  llm_name: string;
-  llm_response: string;
-  llm_relevancy_score: number;
-}
-
 interface CreateResponseProps {
-  createResponse: (
-    text: string,
-    url: string
-  ) => Promise<{ success: boolean; response?: LLMResponses[]; error?: string }>;
   url: string;
 }
 
 export default function LLMResponseComparison({
-  createResponse,
   url,
 }: CreateResponseProps) {
   const [submittedTests, setSubmittedTests] = useState<TestCase[]>([]);
@@ -76,7 +65,6 @@ export default function LLMResponseComparison({
                   index={index}
                   url={url}
                   test={test}
-                  createResponse={createResponse}
                 />
               ))}
             </Tabs>
