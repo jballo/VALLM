@@ -124,8 +124,8 @@ export default function Results({
 
   useEffect(() => {
     fetchData();
-    setResultsData([]);
-  }, []);
+    // setResultsData([]);
+  }, [test.id, url]);
 
   return (
     <TabsContent key={test.id} value={test.id}>

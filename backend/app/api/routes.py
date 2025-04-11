@@ -1,6 +1,6 @@
 from flask import jsonify, request, make_response, Response
 from app.api import bp
-from app.utils import verify_auth_header, calculate_relevancy_score, deepeval_relevancy_score, generate_response
+from app.utils import verify_auth_header, deepeval_relevancy_score, generate_response
 from app.extensions import groq_client, openai_client
 import groq
 from multiprocessing import Pool, Lock
