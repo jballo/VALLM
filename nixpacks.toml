@@ -3,7 +3,7 @@ providers = ['node']
 NIXPACKS_NODE_VERSION = "23"
 
 [phases.setup]
-    nixPkgs = ["nodejs_23", "npm-9_x"]
+    nixPkgs = ["nodejs_18", "npm-9_x"]
 
 [phases.build]
     cmd = "npm run build"
