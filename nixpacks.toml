@@ -1,5 +1,5 @@
 [phases.setup]
-    nixPkgs = ["nodejs-23_x", "npm-9_x"]
+    nixPkgs = ["nodejs-23", "npm-9_x"]
 
 [phases.build]
     cmd = "npm run build"
