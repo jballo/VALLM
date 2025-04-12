@@ -21,9 +21,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "../ui/chart";
-import { TabsContent } from "../ui/tabs";
 import { useEffect, useState } from "react";
 import { Skeleton } from "../ui/skeleton";
+import { TabsContent } from "../ui/tabs";
 
 interface LLMResponses {
     llm_name: string;
@@ -46,13 +46,6 @@ interface ResultsProps {
   test: TestCase;
 }
 
-const chartData = [
-  { metric: "Relevance", score: 0.8 },
-  { metric: "Versatile", score: 0.2 },
-  { metric: "Toxicity", score: 0.4 },
-  { metric: "Bias", score: 0.6 },
-  { metric: "Prompt Alignment", score: 0.65 },
-];
 
 const chartConfig = {
   desktop: {
@@ -153,20 +146,21 @@ export default function Results({
                     <div>
                         <h2 className="text-lg">Output:</h2>
                         <p className="text-md">{response.llm_response}</p>
-                        <h2>Contextual Relevancy Score:</h2>
-                        <p className="text-md">{response.contextual_relevancy_score}</p>
-                        <h2>Answer Relevancy Score:</h2>
-                        <p className="text-md">{response.answer_relevancy_score}</p>
-                        <h2>Bias Success Score:</h2>
-                        <p className="text-md">{response.bias_success_score}</p>
-                        <h2>Toxicity Success Score:</h2>
-                        <p className="text-md">{response.toxicity_success_score}</p>
+                        <p className="text-md">Contextual Relevancy Score: {(Number(response.contextual_relevancy_score)).toFixed(2)}</p>
+                        <p className="text-md">Answer Relevancy Score: {((Number(response.answer_relevancy_score))).toFixed(2)}</p>
+                        <p className="text-md">Bias Success Score: {(Number(response.bias_success_score)).toFixed(2)}</p>
+                        <p className="text-md">Toxicity Success Score: {(Number(response.toxicity_success_score)).toFixed(2)}</p>
                     </div>
                     <div className="">
                       <ChartContainer config={chartConfig}>
                         <BarChart 
                           accessibilityLayer 
-                          data={chartData}
+                          data={[
+                            { metric: "Contextual Relevancy", score: (Number(response.contextual_relevancy_score)).toFixed(2) },
+                            { metric: "Answer Relevancy", score: (Number(response.answer_relevancy_score)).toFixed(2) },
+                            { metric: "Toxicity", score: (Number(response.toxicity_success_score)).toFixed(2) },
+                            { metric: "Bias", score: (Number(response.bias_success_score)).toFixed(2) },
+                          ]}
                           layout="vertical"
                         >
                           <CartesianGrid horizontal={false} />
