@@ -7,9 +7,9 @@ import Results from "./results";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 interface TestCase {
-  id: string;
-  prompt: string;
-  expectedOutput: string;
+  id: string
+  prompt: string
+  expectedOutput: string
 }
 
 interface CreateResponseProps {

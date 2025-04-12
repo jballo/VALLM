@@ -7,6 +7,7 @@ export async function POST(request: Request) {
     console.log("Body: ", body);
     const text = body.text;
     const url = body.url;
+    const expectedOutput = body.expectedOutput;
 
     try {
         const rag_url = new URL(process.env.RAG_RETRIEVAL_ENDPOINT || "http://127.0.0.1:8000/api/v1/retrieval-augmented-generations");
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
             body: JSON.stringify({ 
                 text: context,
                 retrieval_context,
+                expectedOutput,
              })
         });
 
@@ -112,7 +114,7 @@ export async function POST(request: Request) {
                     // await stream.writable.getWriter().write(value);
                     // add delay for 2 minute
                     await writer.write(value);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    // await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             } catch (error) {
                 console.error("Stream processing error: ", error);

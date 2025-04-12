@@ -21,14 +21,18 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "../ui/chart";
-import { TabsContent } from "../ui/tabs";
 import { useEffect, useState } from "react";
 import { Skeleton } from "../ui/skeleton";
+import { TabsContent } from "../ui/tabs";
 
 interface LLMResponses {
-  llm_name: string;
-  llm_response: string;
-  llm_relevancy_score: number;
+    llm_name: string;
+    llm_response: string;
+    contextual_relevancy_score: number;
+    answer_relevancy_score: number;
+    bias_success_score: number;
+    toxicity_success_score: number;
+    correctness_success_score: number;
 }
 
 interface TestCase {
@@ -43,13 +47,6 @@ interface ResultsProps {
   test: TestCase;
 }
 
-const chartData = [
-  { metric: "Relevance", score: 0.8 },
-  { metric: "Versatile", score: 0.2 },
-  { metric: "Toxicity", score: 0.4 },
-  { metric: "Bias", score: 0.6 },
-  { metric: "Prompt Alignment", score: 0.65 },
-];
 
 const chartConfig = {
   desktop: {
@@ -75,13 +72,14 @@ export default function Results({
       // console.log("Response: ", response.response);
       try {
         const text = test.prompt;
+        const expectedOutput = test.expectedOutput;
   
         const response = await fetch('/api/create-response', {
           method: "POST",
           headers: {
             "Content-Type": "text/event-stream",
           },
-          body: JSON.stringify({ text, url })
+          body: JSON.stringify({ text, url, expectedOutput })
         })
   
         if (!response.ok) {
@@ -107,10 +105,16 @@ export default function Results({
           console.log("Chunk List: ", chunkList);
           const jsonList: LLMResponses[] = chunkList.filter((chunk) => chunk.length > 0).map((chunk) => {
             const chunkJson = JSON.parse(chunk);
+            console.log("Chunk Json: ", chunkJson);
             const resp = {
                 llm_name: chunkJson.llm_name,
                 llm_response: chunkJson.llm_response,
-                llm_relevancy_score: chunkJson.llm_relevancy_score,
+                // llm_relevancy_score: chunkJson.llm_relevancy_score,
+                contextual_relevancy_score: chunkJson.contextual_relevancy_score,
+                answer_relevancy_score: chunkJson.answer_relevancy_score,
+                bias_success_score: chunkJson.bias_success_score,
+                toxicity_success_score: chunkJson.toxicity_success_score,
+                correctness_success_score: chunkJson.correctness_success_score,
 
             }
             return resp
@@ -138,26 +142,30 @@ export default function Results({
             <h2>Prompt: {test.prompt}</h2>
             <h2>Expected Output: {test.expectedOutput}</h2>
             <Accordion type="multiple">
-              {resultsData.map((res, index) => (
-                <AccordionItem
-                  key={`${res.llm_name}_${index}`}
-                  value={res.llm_name}
-                >
-                  <AccordionTrigger className="text-lg">
-                    {res.llm_name}
-                  </AccordionTrigger>
+              {resultsData.map((response, index) => (
+                <AccordionItem key={`${response.llm_name}_${index}`} value={response.llm_name}>
+                  <AccordionTrigger className="text-lg">{response.llm_name}</AccordionTrigger>
                   <AccordionContent className="grid grid-cols-2">
                     <div>
-                      <h2 className="text-lg">Output:</h2>
-                      <p className="text-md">{res.llm_response}</p>
-                      <h2>Relevancy Score:</h2>
-                      <p className="text-md">{res.llm_relevancy_score}</p>
+                        <h2 className="text-lg">Output:</h2>
+                        <p className="text-md">{response.llm_response}</p>
+                        <p className="text-md">Correctness Score: {(Number(response.correctness_success_score)).toFixed(2)}</p>
+                        <p className="text-md">Contextual Relevancy Score: {(Number(response.contextual_relevancy_score)).toFixed(2)}</p>
+                        <p className="text-md">Answer Relevancy Score: {((Number(response.answer_relevancy_score))).toFixed(2)}</p>
+                        <p className="text-md">Bias Success Score: {(Number(response.bias_success_score)).toFixed(2)}</p>
+                        <p className="text-md">Toxicity Success Score: {(Number(response.toxicity_success_score)).toFixed(2)}</p>
                     </div>
                     <div className="">
                       <ChartContainer config={chartConfig}>
-                        <BarChart
-                          accessibilityLayer
-                          data={chartData}
+                        <BarChart 
+                          accessibilityLayer 
+                          data={[
+                            { metric: "Correctness", score: (Number(response.correctness_success_score)).toFixed(2) },
+                            { metric: "Contextual Relevancy", score: (Number(response.contextual_relevancy_score)).toFixed(2) },
+                            { metric: "Answer Relevancy", score: (Number(response.answer_relevancy_score)).toFixed(2) },
+                            { metric: "Toxicity", score: (Number(response.toxicity_success_score)).toFixed(2) },
+                            { metric: "Bias", score: (Number(response.bias_success_score)).toFixed(2) },
+                          ]}
                           layout="vertical"
                         >
                           <CartesianGrid horizontal={false} />

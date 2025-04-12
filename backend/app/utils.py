@@ -4,7 +4,12 @@ from app.extensions import groq_client, openai_client
 from app.config import Config
 from deepeval import evaluate
 from deepeval.metrics import ContextualRelevancyMetric
+from deepeval.metrics import AnswerRelevancyMetric
+from deepeval.metrics import BiasMetric
+from deepeval.metrics import ToxicityMetric
 from deepeval.test_case import LLMTestCase
+from deepeval.metrics import GEval
+from deepeval.test_case import LLMTestCaseParams
 from deepeval.dataset import EvaluationDataset
 import groq
 
@@ -31,62 +36,103 @@ def verify_auth_header(header_api_key):
 
 
 
-def deepeval_relevancy_score (prompt, actual_output, retrieval_context):
-    print("\n\n-----------------------------------------------------------------\n\n")
-    print("Calculating relevancy score...")
-    print("Prompt: ", prompt)
-    print("Actual output: ", actual_output)
-    print("Retrieval context: ", retrieval_context)
-    print("\n\n-----------------------------------------------------------------\n\n")
-
-
-    metric = ContextualRelevancyMetric(
+def deepeval_relevancy_score (prompt, actual_output, retrieval_context, expected_output):
+    context_relevancy_metric = ContextualRelevancyMetric(
         threshold=0.7,
         model="gpt-4o-mini",
-        include_reason=True
+        # include_reason=True
     )
+    answer_relevancy_metric = AnswerRelevancyMetric(
+        threshold=0.7,
+        model="gpt-4o-mini",
+        # include_reason=True
+    )
+    bias_metric = BiasMetric (
+        threshold=0.5,
+        model="gpt-4o-mini"
+    )
+
+    toxicity_metric = ToxicityMetric(
+        threshold=0.5,
+        model="gpt-4o-mini"
+    )
+
+    correctness_metric = GEval(
+        name="Correctness",
+        criteria="Determine whether the actual output is factually correct based on the expected output.",
+        # NOTE: you can only provide either criteria or evaluation_steps, and not both
+        evaluation_steps=[
+            "Check whether the facts in 'actual output' contradicts any facts in 'expected output'",
+            "You should also heavily penalize omission of detail",
+            "Vague language, or contradicting OPINIONS, are OK"
+        ],
+        evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT, LLMTestCaseParams.EXPECTED_OUTPUT],
+        model="gpt-4o-mini"
+    )
+
     test_case = LLMTestCase(
         input=prompt,
         actual_output=actual_output,
+        expected_output=expected_output,
         retrieval_context=retrieval_context  # Pass all contexts as a single list
     )
 
+
     test_cases_list = [test_case]
-    # for cntxt in retrieval_context:
-    #     test_case = LLMTestCase(
-    #         input=prompt,
-    #         actual_output=actual_output,
-    #         retrieval_context=[cntxt]
-    #     )
-    #     test_cases_list.append(test_case)
-    # print("test_cases_list: ", test_cases_list)
-    # print("\n\n\n\n----------- DEEPEVAL SCORES--------\n\n\n\n")
 
     result = evaluate(
         test_cases=test_cases_list, 
-        metrics=[metric], 
+        metrics=[context_relevancy_metric, answer_relevancy_metric, bias_metric, toxicity_metric, correctness_metric], 
         print_results=True, 
         write_cache=False
     )
-    print("result: ", result)
+    # print("result: ", result.test_results)
+    contextual_results = []
+    answer_results = []
+    bias_results = []
+    toxicity_results = []
+    correctness_results = []
 
-    scores = []
     for res in result.test_results:
-        for metric_data in res.metrics_data:
-            scores.append(metric_data.score)
-    
-    average_score = (sum(scores) / len(scores)) if scores else 0
-    print("Average score: ", average_score)
-    
-    # print("Success rate: ", success_rate)
+        for metric in res.metrics_data:
+            print("Metric: ", metric)
+            if metric.name == "Contextual Relevancy":
+                contextual_results.append(metric.score)
+            elif metric.name == "Answer Relevancy":
+                answer_results.append(metric.score)
+            elif metric.name == "Bias":
+                bias_results.append(metric.score)
+            elif metric.name == "Toxicity":
+                toxicity_results.append(metric.score)
+            elif metric.name == "Correctness (GEval)":
+                correctness_results.append(metric.score)
+                
+    contextual_score = sum(contextual_results) / len(contextual_results) if contextual_results else 0
+    answer_score = sum(answer_results) / len(answer_results) if answer_results else 0
+    bias_score = sum(bias_results) / len(bias_results) if bias_results else 0
+    toxicity_score = sum(toxicity_results) / len(toxicity_results) if toxicity_results else 0
+    correctness_score = sum(correctness_results) / len(correctness_results) if correctness_results else 0
 
-    # ("\n\n\n\n----------------------------------\n\n\n\n")
-    return average_score
+    print("Contextual relevancy success rate: ", contextual_score)
+    print("Answer relevancy success rate: ", answer_score)
+    print("Bias success rate: ", bias_score)
+    print("Toxicit succcess rate: ", toxicity_score)
+    print("Correctness success rate: ", correctness_score)
+
+    ("\n\n\n\n----------------------------------\n\n\n\n")
+    return {
+        "contextual_success_rate": contextual_score,
+        "answer_success_rate": answer_score,
+        "bias_success_rate": bias_score,
+        "toxicity_success_rate": toxicity_score,
+        "correctness_success_rate": correctness_score,
+    }
 
 
 
 
-def generate_response(model, prompt, context):
+def generate_response(model, prompt, context, expected_output):
+    """Generate response from LLM"""
     print("Generating response...")
 
     system_prompt = f"""
@@ -213,7 +259,11 @@ def generate_response(model, prompt, context):
         print("\n\n\n\nmodel: ", model)
         model_name = model
         model_response = ""
-        relevancy_score = 0
+        contextual_relevancy_score = 0
+        answer_relevancy_score = 0
+        bias_success_score = 0
+        toxicity_success_score = 0
+        correctness_success_score = 0
 
 
 
@@ -234,15 +284,15 @@ def generate_response(model, prompt, context):
             )
 
             llama_versatile_response = llama_versatile_completion.choices[0].message.content
-            llama_versatile_relevancy_score = deepeval_relevancy_score(prompt, llama_versatile_response, context)
+            llama_versatile_relevancy_scores = deepeval_relevancy_score(prompt, llama_versatile_response, context, expected_output)
 
             model_response = llama_versatile_response
-            relevancy_score = llama_versatile_relevancy_score
-            # llama_versatile_relevancy_score = deepeval_relevancy_score(prompt, llama_versatile_response, contxt)
-            # calculate_coherence_score(prompt, llama_versatile_response)
-            # calculate_toxicity_score(prompt, llama_versatile_response)
-            # calculate_bias_score(prompt, llama_versatile_response)
-            # calculate_promp_alignment_score(system_prompt, llama_versatile_response)
+            contextual_relevancy_score = llama_versatile_relevancy_scores["contextual_success_rate"]
+            answer_relevancy_score = llama_versatile_relevancy_scores["answer_success_rate"]
+            bias_success_score = llama_versatile_relevancy_scores["bias_success_rate"]
+            toxicity_success_score = llama_versatile_relevancy_scores["toxicity_success_rate"]
+            correctness_success_score = llama_versatile_relevancy_scores["correctness_success_rate"]
+
         
         elif model == "llama-3.1-8b-instant":
             llama_instant_completion = groq_client.chat.completions.create(
@@ -260,9 +310,15 @@ def generate_response(model, prompt, context):
                 max_tokens=60
             )
             llama_instant_response = llama_instant_completion.choices[0].message.content
-            llama_instant_relevancy_score = deepeval_relevancy_score(prompt, llama_instant_response, context)
+            llama_instant_relevancy_scores = deepeval_relevancy_score(prompt, llama_instant_response, context, expected_output)
+            print("llama_instant_relevancy_scores: ", llama_instant_relevancy_scores)
             model_response = llama_instant_response
-            relevancy_score = llama_instant_relevancy_score
+            contextual_relevancy_score = llama_instant_relevancy_scores["contextual_success_rate"]
+            answer_relevancy_score = llama_instant_relevancy_scores["answer_success_rate"]
+            bias_success_score = llama_instant_relevancy_scores["bias_success_rate"]
+            toxicity_success_score = llama_instant_relevancy_scores["toxicity_success_rate"]
+            correctness_success_score = llama_instant_relevancy_scores["correctness_success_rate"]
+
         elif model == "qwen-qwq-32b":
             qwen_completion = groq_client.chat.completions.create(
                 messages=[
@@ -279,9 +335,14 @@ def generate_response(model, prompt, context):
                 # max_tokens=60
             )
             qwen_response = qwen_completion.choices[0].message.content
-            qwen_relevancy_score = deepeval_relevancy_score(prompt, qwen_response, context)
+            qwen_relevancy_scores = deepeval_relevancy_score(prompt, qwen_response, context, expected_output)
             model_response = qwen_response
-            relevancy_score = qwen_relevancy_score
+            contextual_relevancy_score = qwen_relevancy_scores["contextual_success_rate"]
+            answer_relevancy_score = qwen_relevancy_scores["answer_success_rate"]
+            bias_success_score = qwen_relevancy_scores["bias_success_rate"]
+            toxicity_success_score = qwen_relevancy_scores["toxicity_success_rate"]
+            correctness_success_score = qwen_relevancy_scores["correctness_success_rate"]
+
         elif model == "qwen-2.5-32b":
             qwen_completion = groq_client.chat.completions.create(
                 messages=[
@@ -298,9 +359,14 @@ def generate_response(model, prompt, context):
                 # max_tokens=60
             )
             qwen_response = qwen_completion.choices[0].message.content
-            qwen_relevancy_score = deepeval_relevancy_score(prompt, qwen_response, context)
+            qwen_relevancy_scores = deepeval_relevancy_score(prompt, qwen_response, context, expected_output)
             model_response = qwen_response
-            relevancy_score = qwen_relevancy_score
+            contextual_relevancy_score = qwen_relevancy_scores["contextual_success_rate"]
+            answer_relevancy_score = qwen_relevancy_scores["answer_success_rate"]
+            bias_success_score = qwen_relevancy_scores["bias_success_rate"]
+            toxicity_success_score = qwen_relevancy_scores["toxicity_success_rate"]
+            correctness_success_score = qwen_relevancy_scores["correctness_success_rate"]
+
         elif model == "gpt-4o-mini":
             gpt_completion = openai_client.chat.completions.create(
                 messages=[
@@ -317,19 +383,32 @@ def generate_response(model, prompt, context):
                 max_tokens=60
             )
             gpt_response = gpt_completion.choices[0].message.content
-            gpt_relevancy_score = deepeval_relevancy_score(prompt, gpt_response, context)
+            gpt_relevancy_scores = deepeval_relevancy_score(prompt, gpt_response, context, expected_output)
             model_response = gpt_response
-            relevancy_score = gpt_relevancy_score
+            contextual_relevancy_score = gpt_relevancy_scores["contextual_success_rate"]
+            answer_relevancy_score = gpt_relevancy_scores["answer_success_rate"]
+            bias_success_score = gpt_relevancy_scores["bias_success_rate"]
+            toxicity_success_score = gpt_relevancy_scores["toxicity_success_rate"]
+            correctness_success_score = gpt_relevancy_scores["correctness_success_rate"]
+
         else:
             model_name = ""
             model_response = "No response. Model unknown"
-            relevancy_score = 0
+            contextual_relevancy_score = 0
+            answer_relevancy_score = 0
+            bias_success_score = 0
+            toxicity_success_score = 0
+            correctness_success_score = 0
 
 
         return {
             "llm_name": model_name,
             "llm_response": model_response,
-            "llm_relevancy_score": relevancy_score,
+            "contextual_relevancy_score": contextual_relevancy_score,
+            "answer_relevancy_score": answer_relevancy_score,
+            "bias_success_score": bias_success_score,
+            "toxicity_success_score": toxicity_success_score,
+            "correctness_success_score": correctness_success_score,
         }
     
     except groq.APIConnectionError as e:

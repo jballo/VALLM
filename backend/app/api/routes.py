@@ -1,8 +1,7 @@
 from flask import jsonify, request, make_response, Response
 from app.api import bp
-from app.utils import verify_auth_header, deepeval_relevancy_score, generate_response
+from app.utils import verify_auth_header, generate_response
 from app.extensions import groq_client, openai_client
-import groq
 from multiprocessing import Pool, Lock
 import pprint
 import json
@@ -13,8 +12,8 @@ lock = Lock()
 
 def process_llm_request(args):
     """Helper function to process LLM requests"""
-    model, prompt, context = args
-    return generate_response(model, prompt, context)
+    model, prompt, context, expected_output = args
+    return generate_response(model, prompt, context, expected_output)
 
 @bp.route('/llm-response', methods=['POST'])
 def llm_response():
@@ -27,12 +26,14 @@ def llm_response():
         data = request.get_json()
         prompt = data['text']
         contxt = data['retrieval_context']
+        expected_output = data['expectedOutput']
+
 
         models_list = [
-            ("llama-3.3-70b-versatile", prompt, contxt),
-            ("llama-3.1-8b-instant", prompt, contxt),
-            ("qwen-2.5-32b", prompt, contxt),
-            ("gpt-4o-mini", prompt, contxt)
+            ("llama-3.3-70b-versatile", prompt, contxt, expected_output),
+            ("llama-3.1-8b-instant", prompt, contxt, expected_output),
+            ("qwen-2.5-32b", prompt, contxt, expected_output),
+            ("gpt-4o-mini", prompt, contxt, expected_output),
         ]
 
         def generate():
@@ -59,7 +60,6 @@ def llm_response():
                 'X-Accel-Buffering': 'no', # Prevents buffering in Nginx
             }
         )
-    
     except:
         response_body = {
             "status": "failure",
@@ -68,4 +68,3 @@ def llm_response():
         }
 
         return make_response(jsonify(response_body), 500)
-    
