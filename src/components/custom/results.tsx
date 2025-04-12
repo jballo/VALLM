@@ -32,6 +32,7 @@ interface LLMResponses {
     answer_relevancy_score: number;
     bias_success_score: number;
     toxicity_success_score: number;
+    correctness_success_score: number;
 }
 
 interface TestCase {
@@ -71,13 +72,14 @@ export default function Results({
       // console.log("Response: ", response.response);
       try {
         const text = test.prompt;
+        const expectedOutput = test.expectedOutput;
   
         const response = await fetch('/api/create-response', {
           method: "POST",
           headers: {
             "Content-Type": "text/event-stream",
           },
-          body: JSON.stringify({ text, url })
+          body: JSON.stringify({ text, url, expectedOutput })
         })
   
         if (!response.ok) {
@@ -112,6 +114,7 @@ export default function Results({
                 answer_relevancy_score: chunkJson.answer_relevancy_score,
                 bias_success_score: chunkJson.bias_success_score,
                 toxicity_success_score: chunkJson.toxicity_success_score,
+                correctness_success_score: chunkJson.correctness_success_score,
 
             }
             return resp
@@ -146,6 +149,7 @@ export default function Results({
                     <div>
                         <h2 className="text-lg">Output:</h2>
                         <p className="text-md">{response.llm_response}</p>
+                        <p className="text-md">Correctness Score: {(Number(response.correctness_success_score)).toFixed(2)}</p>
                         <p className="text-md">Contextual Relevancy Score: {(Number(response.contextual_relevancy_score)).toFixed(2)}</p>
                         <p className="text-md">Answer Relevancy Score: {((Number(response.answer_relevancy_score))).toFixed(2)}</p>
                         <p className="text-md">Bias Success Score: {(Number(response.bias_success_score)).toFixed(2)}</p>
@@ -156,6 +160,7 @@ export default function Results({
                         <BarChart 
                           accessibilityLayer 
                           data={[
+                            { metric: "Correctness", score: (Number(response.correctness_success_score)).toFixed(2) },
                             { metric: "Contextual Relevancy", score: (Number(response.contextual_relevancy_score)).toFixed(2) },
                             { metric: "Answer Relevancy", score: (Number(response.answer_relevancy_score)).toFixed(2) },
                             { metric: "Toxicity", score: (Number(response.toxicity_success_score)).toFixed(2) },
