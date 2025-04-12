@@ -1,11 +1,20 @@
-from flask import jsonify, request, make_response
+from flask import jsonify, request, make_response, Response
 from app.api import bp
-from app.utils import verify_auth_header, calculate_relevancy_score, deepeval_relevancy_score, generate_response
+from app.utils import verify_auth_header, deepeval_relevancy_score, generate_response
 from app.extensions import groq_client, openai_client
 import groq
-from multiprocessing import Pool
+from multiprocessing import Pool, Lock
 import pprint
+import json
 
+
+# Initalize a lock
+lock = Lock()
+
+def process_llm_request(args):
+    """Helper function to process LLM requests"""
+    model, prompt, context = args
+    return generate_response(model, prompt, context)
 
 @bp.route('/llm-response', methods=['POST'])
 def llm_response():
@@ -18,24 +27,38 @@ def llm_response():
         data = request.get_json()
         prompt = data['text']
         contxt = data['retrieval_context']
-        
 
-        with Pool(4) as p:
-            llm_responses = p.starmap(generate_response, [("llama-3.3-70b-versatile", prompt, contxt), ("llama-3.1-8b-instant", prompt, contxt), ("qwen-2.5-32b", prompt, contxt), ("gpt-4o-mini", prompt, contxt)])
+        models_list = [
+            ("llama-3.3-70b-versatile", prompt, contxt),
+            ("llama-3.1-8b-instant", prompt, contxt),
+            ("qwen-2.5-32b", prompt, contxt),
+            ("gpt-4o-mini", prompt, contxt)
+        ]
+
+        def generate():
+            with Pool(4) as p:
+                results = p.map(process_llm_request, models_list)
+                for result in results:
+                    # print(result)
+                    print("----------------------------")
+                    pprint.pp(result)
+                    print("----------------------------")
+                    yield f"{json.dumps(result)}\n"
+                # for result in results:
+                #     with lock:
+                #         pprint.pp(result)
+                #         yield f"data: {json.dumps(result)}\n\n"
 
 
-            pprint.pp(llm_responses)
-
-
-            print("\n\n\n\n----------------------------\n\n")
-            
-            response_body = {
-                "status": "success",
-                "code": 200,
-                "content": llm_responses
+        return Response(
+            generate(),
+            mimetype='text/event-stream',
+            headers={
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'X-Accel-Buffering': 'no', # Prevents buffering in Nginx
             }
-
-            return jsonify(response_body)
+        )
     
     except:
         response_body = {

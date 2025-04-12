@@ -1,55 +1,36 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import TestCaseInput from './test-case-input'
-import Results from './results'
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import TestCaseInput from "./test-case-input";
+import Results from "./results";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 interface TestCase {
-  id: string
-  prompt: string
-  expectedOutput: string
-}
-
-interface LLMResponses {
-    llm_name: string;
-    llm_response: string;
-    llm_relevancy_score: number;
+  id: string;
+  prompt: string;
+  expectedOutput: string;
 }
 
 interface CreateResponseProps {
-    createResponse: (
-        text: string,
-        url: string
-    ) => Promise<{ success: boolean; response?: LLMResponses[]; error?: string;}>
-    url: string
+  url: string;
 }
 
+export default function LLMResponseComparison({
+  url,
+}: CreateResponseProps) {
+  const [submittedTests, setSubmittedTests] = useState<TestCase[]>([]);
+  const [resultTab, setResultTab] = useState<string>("");
 
-interface TestCaseResult {
-  testCaseId: string
-  prompt: string
-  expectedOutput: string
-  responses: LLMResponses[]
-}
+  const onTabChange = (value: string) => {
+    setResultTab(value);
+  };
 
-export default function LLMResponseComparison({createResponse, url}: CreateResponseProps) {
-  const [testCaseResults, setTestCaseResults] = useState<TestCaseResult[]>([])
-
-  const handleTestCaseSubmit = async (testCases: TestCase[]) => {
-    const results = await Promise.all(testCases.map(async (testCase) => {
-    //   const responses = await simulateLLMResponses(testCase.prompt,)
-      const response = await createResponse(testCase.prompt, url);
-      const responses = response.response || [];
-      return {
-        testCaseId: testCase.id,
-        prompt: testCase.prompt,
-        expectedOutput: testCase.expectedOutput,
-        responses
-      }
-    }))
-    setTestCaseResults(results);
-  }
+  useEffect(() => {
+    if (resultTab.length > 0) {
+      onTabChange(resultTab);
+    }
+  }, [resultTab]);
 
   return (
     <div className="container mx-auto p-4 space-y-8">
@@ -58,24 +39,38 @@ export default function LLMResponseComparison({createResponse, url}: CreateRespo
           <CardTitle>LLM Response Comparison</CardTitle>
         </CardHeader>
         <CardContent>
-          <TestCaseInput onSubmit={handleTestCaseSubmit} />
+          <TestCaseInput
+            setSubmittedTests={setSubmittedTests}
+            setResultTab={setResultTab}
+          />
         </CardContent>
       </Card>
-      
-      {testCaseResults.length > 0 && (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle>Test Results</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Results testCaseResults={testCaseResults} />
-              {/* <TextComparisonGrid testCaseResults={testCaseResults} /> */}
-            </CardContent>
-          </Card>
-        </>
+      {submittedTests.length > 0 && resultTab.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Test Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={resultTab} onValueChange={setResultTab}>
+              <TabsList>
+                {submittedTests.map((test, index) => (
+                  <TabsTrigger key={index} value={test.id}>
+                    Result {index + 1}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {submittedTests.map((test, index) => (
+                <Results
+                  key={test.id}
+                  index={index}
+                  url={url}
+                  test={test}
+                />
+              ))}
+            </Tabs>
+          </CardContent>
+        </Card>
       )}
     </div>
-  )
+  );
 }
-
