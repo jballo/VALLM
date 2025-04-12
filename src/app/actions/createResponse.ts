@@ -1,10 +1,10 @@
 "use server";
 
-
-export async function createResponse(text: string, url: string) {
+export async function createResponse(text: string, url: string){
     console.log("Text in action: ", text);
+
     try {
-        const start = new Date().getTime();
+        // const start = new Date().getTime();
         const rag_url = new URL(process.env.RAG_RETRIEVAL_ENDPOINT || "http://127.0.0.1:8000/api/v1/retrieval-augmented-generations");
 
         rag_url.searchParams.set("prompt", text);
@@ -50,7 +50,6 @@ export async function createResponse(text: string, url: string) {
             headers: {
                 "Content-Type": "application/json",
                 "X-API-Key": process.env.API_KEY || "",
-                Accept: "multipart/mixed",
             },
             body: JSON.stringify({ 
                 text: context,
@@ -64,16 +63,57 @@ export async function createResponse(text: string, url: string) {
             throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
 
-        const response_result = await response.json();
-        // console.log("Result: ", response_result);
+        // const response_result = await response.json();
+        // // console.log("Result: ", response_result);
 
-        const elapsed = new Date().getTime() - start;
-        console.log("Elapsed time: ", elapsed);
+        // const elapsed = new Date().getTime() - start;
+        // console.log("Elapsed time: ", elapsed);
 
-        return {
-            success: true,
-            response: response_result.content,
+        // return {
+        //     success: true,
+        //     response: response_result.content,
+        // }
+
+
+        // return {
+        //     success: true,
+        //     response: response
+        // }
+
+        //  Process the stream server-side
+
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+
+        if (!reader) {
+            throw new Error("No reader available");
         }
+
+        while (true) {
+
+            const { value, done } = await reader.read();
+            if (done) {
+                console.log("Stream complete");
+                break;
+            }
+            console.log("Received...");
+            const chunk = decoder.decode(value);
+            // console.log("Chunk: ", chunk);
+            const jsonString = chunk?.slice(6);
+            const data = JSON.parse(jsonString || "");
+            console.log("Data: ", data);
+            // Return the data to the client
+            return {
+                success: true,
+                response: data,
+            }
+        }
+
+
+        // return {
+        //     success: true,
+        //     response: "",
+        // }
         
     } catch (error) {
         console.error("Error: ", error);

@@ -29,81 +29,6 @@ def verify_auth_header(header_api_key):
         else:
              print("Authorized request.")
              return None
-        
-def calculate_relevancy_score(prompt, actual_output):
-    # retrieval_context = retrieval_context.rstrip().split('\n')
-    # metric = ContextualRelevancyMetric(
-    #     threshold=0.7,
-    #     model="gpt-4",
-    #     include_reason=True
-    # )
-    # test_case = LLMTestCase(
-    #     input="What if these shoes don't fit?",
-    #     actual_output=actual_output,
-    #     retrieval_context=retrieval_context
-    # )
-
-    # metric.measure(test_case)
-    # print("Relevancy Score: ", metric.score)
-    # print("Relevancy reason: ", metric.reason)
-
-    system_prompt = f"""
-    You are an evaluator tasked with determining whether the actual output directly answers the question or is relevant to the input prompt. Your goal is to analyze the input prompt and the actual output, and assign a numerical score between 0 and 10, where:
-
-    - **0**: The output does not answer the question or is completely irrelevant to the input prompt.
-    - **10**: The output fully answers the question and is highly relevant to the input prompt.
-
-    Consider the following criteria in your evaluation:
-    1. **Relevance:** Does the actual output relate to the context or topic of the input prompt?
-    2. **Accuracy:** Does the output correctly and fully address the input prompt?
-
-    Return your response in valid JSON format as follows:
-
-    {{
-    "relevancy_score": <score>
-    }}
-
-    Here is the information for evaluation:
-
-    #### Input Prompt:
-    {prompt}
-
-    #### Actual Output:
-    {actual_output}
-
-    #### Response Format:
-    {{
-    "type": "json_object"
-    }}
-
-    Generate only the JSON object.
-    """
-
-
-    chat_completion = groq_client.chat.completions.create(
-        messages=[
-            {
-                "role": "system",
-                "content": system_prompt
-            },
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
-        model="llama-3.3-70b-versatile",
-        response_format={ "type": "json_object" }
-    )
-    raw_response = chat_completion.choices[0].message.content
-    # print(f"Raw Response: {raw_response}")
-
-    parsed_response = json.loads(raw_response)
-    score = parsed_response["relevancy_score"]
-    # print(type(score))
-    # print("Relevancy score: ", score)
-    return score
-
-
 
 
 
@@ -130,18 +55,14 @@ def deepeval_relevancy_score (prompt, actual_output, retrieval_context):
         model="gpt-4o-mini"
     )
 
+    test_case = LLMTestCase(
+        input=prompt,
+        actual_output=actual_output,
+        retrieval_context=retrieval_context  # Pass all contexts as a single list
+    )
 
-    test_cases_list = []
-    for cntxt in retrieval_context:
-        # temp = [cntxt]
-        test_case = LLMTestCase(
-            input=prompt,
-            actual_output=actual_output,
-            retrieval_context=[cntxt]
-        )
-        test_cases_list.append(test_case)
-    # print("test_cases_list: ", test_cases_list)
-    print("\n\n\n\n----------- DEEPEVAL SCORES--------\n\n\n\n")
+
+    test_cases_list = [test_case]
 
     result = evaluate(
         test_cases=test_cases_list, 
@@ -150,64 +71,45 @@ def deepeval_relevancy_score (prompt, actual_output, retrieval_context):
         write_cache=False
     )
     # print("result: ", result.test_results)
-
-    contextual_test_count = 0
-    answer_test_count = 0
-    bias_test_count = 0
-    toxicity_test_count = 0
-
-    contextual_pass_count = 0
-    answer_pass_count = 0
-    bias_pass_count = 0
-    toxicity_pass_count = 0
+    contextual_results = []
+    answer_results = []
+    bias_results = []
+    toxicity_results = []
 
     for res in result.test_results:
         for metric in res.metrics_data:
             print("Metric: ", metric)
             if metric.name == "Contextual Relevancy":
-                contextual_test_count += 1
-                if metric.success == True:
-                    contextual_pass_count += 1
+                contextual_results.append(metric.score)
             elif metric.name == "Answer Relevancy":
-                answer_test_count += 1
-                if metric.success == True:
-                    answer_pass_count += 1
+                answer_results.append(metric.score)
             elif metric.name == "Bias":
-                bias_test_count += 1
-                if metric.success == True:
-                    bias_pass_count += 1
+                bias_results.append(metric.score)
             elif metric.name == "Toxicity":
-                toxicity_test_count += 1
-                if metric.success == True:
-                    toxicity_pass_count += 1
+                toxicity_results.append(metric.score)
                 
-
-    # score = 0
-    # for res in result.test_results:
-    #     if res.success == True:
-    #          score += 1
-
-    contextual_success_rate = contextual_pass_count / contextual_test_count
-    answer_success_rate = answer_pass_count / answer_test_count
-    bias_success_rate = bias_pass_count / bias_test_count
-    toxicity_success_rate = toxicity_pass_count / toxicity_test_count
-    print("Contextual relevancy success rate: ", contextual_success_rate)
-    print("Answer relevancy success rate: ", answer_success_rate)
-    print("Bias success rate: ", bias_success_rate)
-    print("Toxicit succcess rate: ", toxicity_success_rate)
+    contextual_score = sum(contextual_results) / len(contextual_results) if contextual_results else 0
+    answer_score = sum(answer_results) / len(answer_results) if answer_results else 0
+    bias_score = sum(bias_results) / len(bias_results) if bias_results else 0
+    toxicity_score = sum(toxicity_results) / len(toxicity_results) if toxicity_results else 0
+    print("Contextual relevancy success rate: ", contextual_score)
+    print("Answer relevancy success rate: ", answer_score)
+    print("Bias success rate: ", bias_score)
+    print("Toxicit succcess rate: ", toxicity_score)
 
     ("\n\n\n\n----------------------------------\n\n\n\n")
     return {
-        "contextual_success_rate": contextual_success_rate,
-        "answer_success_rate": answer_success_rate,
-        "bias_success_rate": bias_success_rate,
-        "toxicity_success_rate": toxicity_success_rate,
+        "contextual_success_rate": contextual_score,
+        "answer_success_rate": answer_score,
+        "bias_success_rate": bias_score,
+        "toxicity_success_rate": toxicity_score,
     }
 
 
 
 
 def generate_response(model, prompt, context):
+    print("Generating response...")
 
     system_prompt = f"""
     I will provide you with information about a company's website, including sections like product pages, landing pages, FAQs, 'Contact Us,' pricing tables, testimonials, blogs, case studies, careers, company history, and more. Your task is to:
@@ -364,11 +266,7 @@ def generate_response(model, prompt, context):
             answer_relevancy_score = llama_versatile_relevancy_scores["answer_success_rate"]
             bias_success_score = llama_versatile_relevancy_scores["bias_success_rate"]
             toxicity_success_score = llama_versatile_relevancy_scores["toxicity_success_rate"]
-            # llama_versatile_relevancy_score = deepeval_relevancy_score(prompt, llama_versatile_response, contxt)
-            # calculate_coherence_score(prompt, llama_versatile_response)
-            # calculate_toxicity_score(prompt, llama_versatile_response)
-            # calculate_bias_score(prompt, llama_versatile_response)
-            # calculate_promp_alignment_score(system_prompt, llama_versatile_response)
+
         
         elif model == "llama-3.1-8b-instant":
             llama_instant_completion = groq_client.chat.completions.create(
@@ -450,6 +348,7 @@ def generate_response(model, prompt, context):
                     }
                 ],
                 model="gpt-4o-mini",
+                max_tokens=60
             )
             gpt_response = gpt_completion.choices[0].message.content
             gpt_relevancy_scores = deepeval_relevancy_score(prompt, gpt_response, context)
