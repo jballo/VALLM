@@ -36,7 +36,7 @@ def llm_response():
         ]
 
         def generate():
-            with Pool(2) as p:
+            with Pool(4) as p:
                 results = p.map(process_llm_request, models_list)
                 for result in results:
                     # print(result)
