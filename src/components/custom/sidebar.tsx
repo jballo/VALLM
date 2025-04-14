@@ -5,11 +5,11 @@ import { Button } from "../ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-interface SidebarProps {
+// interface SidebarProps {
 
-}
+// }
 
-export default function Sidebar({}: SidebarProps) {
+export default function Sidebar() {
     const [collapsed, setCollapsed] = useState<boolean>(false);
 
 
