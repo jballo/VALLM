@@ -30,7 +30,9 @@ export default function Dashboard({ createEmbedding}: DashboardProps) {
                 <Sidebar />
                 <div className="w-full">
                     <PromptForm createEmbedding={createEmbedding} url={url} setUrl={setUrl}/>
-                    <LLMResponseComparison url={url}/>
+                    <LLMResponseComparison 
+                        // url={url}
+                    />
                 </div>
               </div>
         </div>
