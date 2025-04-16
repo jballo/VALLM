@@ -34,7 +34,7 @@ export default function LLMResponseComparison() {
 
   return (
     <div className="container mx-auto p-4 space-y-8">
-      <Card>
+      <Card className="bg-[#011627]">
         <CardHeader>
           <div className="flex flex-row justify-between">
             <Tabs defaultValue="editor">
