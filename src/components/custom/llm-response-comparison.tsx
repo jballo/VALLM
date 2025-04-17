@@ -8,17 +8,22 @@ import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { Stars, Zap } from "lucide-react";
 import { Button } from "../ui/button";
 
-// interface TestCase {
-//   id: string
-//   prompt: string
-//   expectedOutput: string
-// }
+interface TestCase {
+  id: string
+  prompt: string
+  expectedOutput: string
+}
 
-// interface CreateResponseProps {
-//   url: string;
-// }
+interface CreateResponseProps {
+  // url: string;
+  testCases: TestCase[];
+  currentTestCase: string;
+  updateTestCase: (id: string,
+        field: "prompt" | "expectedOutput",
+        value: string) => void;
+}
 
-export default function LLMResponseComparison() {
+export default function LLMResponseComparison({ testCases, currentTestCase, updateTestCase }: CreateResponseProps) {
   // const [submittedTests, setSubmittedTests] = useState<TestCase[]>([]);
   const [resultTab, setResultTab] = useState<string>("");
 
@@ -55,6 +60,9 @@ export default function LLMResponseComparison() {
           <TestCaseInput
             // setSubmittedTests={setSubmittedTests}
             // setResultTab={setResultTab}
+            testCases={testCases}
+            currentTestCase={currentTestCase}
+            updateTestCase={updateTestCase}
           />
         </CardContent>
       </Card>

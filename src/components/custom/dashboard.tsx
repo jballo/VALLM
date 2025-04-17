@@ -40,6 +40,16 @@ export default function Dashboard({ createEmbedding}: DashboardProps) {
         setCurrentTestCase(id);
     };
 
+    const updateTestCase = (
+        id: string,
+        field: "prompt" | "expectedOutput",
+        value: string
+    ) => {
+        setTestCases(
+        testCases.map((tc) => (tc.id === id ? { ...tc, [field]: value } : tc))
+        );
+    };
+
     useEffect(() => {
         addTestCase();
     }, []);
@@ -61,6 +71,9 @@ export default function Dashboard({ createEmbedding}: DashboardProps) {
                     <PromptForm createEmbedding={createEmbedding} url={url} setUrl={setUrl}/>
                     <LLMResponseComparison 
                         // url={url}
+                        testCases={testCases}
+                        currentTestCase={currentTestCase}
+                        updateTestCase={updateTestCase}
                     />
                 </div>
               </div>
