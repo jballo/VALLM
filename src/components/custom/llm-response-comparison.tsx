@@ -52,7 +52,7 @@ export default function LLMResponseComparison({ testCases, currentTestCase, upda
               variant="ghost"
               className="text-white bg-[#36c5b3] hover:bg-[#278f81]"
             >
-              Run Tests
+              Run Test{(testCases.length > 1) && (<>s ({testCases.length})</>)}
             </Button>
           </div>
         </CardHeader>
