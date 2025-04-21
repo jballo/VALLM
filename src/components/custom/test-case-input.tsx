@@ -77,7 +77,7 @@ export default function TestCaseInput({ testCases, currentTestCase, updateTestCa
                 className="bg-[#213342] border-[0.5px] border-[#3F4E5D]"
                 placeholder="Enter your expected output here..."
                 // value={expectedOutput}
-                value={testCases.filter((test) => test.id === currentTestCase)[0].prompt}
+                value={testCases.filter((test) => test.id === currentTestCase)[0].expectedOutput}
                 onChange={(e) => updateTestCase(currentTestCase, "expectedOutput", e.target.value)}
               />
             </div>

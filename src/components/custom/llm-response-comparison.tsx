@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader } from "../ui/card";
 import TestCaseInput from "./test-case-input";
 // import Results from "./results";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
@@ -14,15 +13,22 @@ interface TestCase {
   expectedOutput: string
 }
 
-// interface LLMResponses {
-//     llm_name: string;
-//     llm_response: string;
-//     contextual_relevancy_score: number;
-//     answer_relevancy_score: number;
-//     bias_success_score: number;
-//     toxicity_success_score: number;
-//     correctness_success_score: number;
-// }
+interface LLMResponse {
+    llm_name: string,
+    llm_response: string,
+    contextual_relevancy_score: number,
+    answer_relevancy_score: number,
+    bias_success_score: number,
+    toxicity_success_score: number,
+    correctness_success_score: number,
+}
+
+interface TestCaseResult {
+    id: string,
+    prompt: string,
+    expectedOutput: string,
+    llm_response: LLMResponse[],
+}
 
 interface CreateResponseProps {
   // url: string;
@@ -31,9 +37,11 @@ interface CreateResponseProps {
   updateTestCase: (id: string,
         field: "prompt" | "expectedOutput",
         value: string) => void;
+  handleSubmit: () => void;
+  testCaseResults: TestCaseResult[];
 }
 
-export default function LLMResponseComparison({ testCases, currentTestCase, updateTestCase }: CreateResponseProps) {
+export default function LLMResponseComparison({ testCases, currentTestCase, updateTestCase, handleSubmit, testCaseResults }: CreateResponseProps) {
   // const [submittedTests, setSubmittedTests] = useState<TestCase[]>([]);
   const [resultTab, setResultTab] = useState<string>("");
   // const [results, setResults] = useState<LLMResponses[]>([]);
@@ -47,24 +55,6 @@ export default function LLMResponseComparison({ testCases, currentTestCase, upda
       onTabChange(resultTab);
     }
   }, [resultTab]);
-
-
-  // const handleSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   const validTestCases = testCases.filter(
-  //     (tc) => tc.prompt.trim() && tc.expectedOutput.trim()
-  //   );
-  //   if (validTestCases.length > 0) {
-  //     // onSubmit(validTestCases);
-  //     console.log("Valid test cases: ", validTestCases);
-  //     // setSubmittedTests([]);
-  //     setSubmittedTests(validTestCases);
-  //     setResultTab(validTestCases[0].id);
-  //     const id = uuidv4();
-  //     setTestCases([{ id: id, prompt: "", expectedOutput: "" }]);
-  //     setTabVal(id);
-  //   }
-  // };
 
   return (
     <div className="container mx-auto p-4 space-y-8">
@@ -86,14 +76,37 @@ export default function LLMResponseComparison({ testCases, currentTestCase, upda
               </TabsContent>
               <TabsContent value="results" className="text-white">
                 <div className="w-full flex flex-col justify-center items-center">
-                  <h2>No Results Yet</h2>
-                  <p>Run tests to see results for this test case</p>
+                  { (testCaseResults.filter((test) => test.id === currentTestCase).length === 1) ? (
+                    <>
+                      Results computed
+                      <p>Prompt: {testCaseResults.filter((test) => test.id === currentTestCase)[0].prompt}</p>
+                      <p>Expected Output: {testCaseResults.filter((test) => test.id === currentTestCase)[0].expectedOutput}</p>
+                      {(testCaseResults.filter((test) => test.id === currentTestCase)[0].llm_response.map((llm_res, index) => (
+                        <div key={index}>
+                          <p>Name: {llm_res.llm_name}</p>
+                          <p>Llm Response: {llm_res.llm_response}</p>
+                          <p>Contextual Relevancy Score: {llm_res.contextual_relevancy_score}</p>
+                          <p>Answer Relevancy Score: {llm_res.answer_relevancy_score}</p>
+                          <p>Bias Score: {llm_res.bias_success_score}</p>
+                          <p>Toxicity Score: {llm_res.toxicity_success_score}</p>
+                          <p>Correctness Score: {llm_res.correctness_success_score}</p>
+                        </div>
+                      )))}
+
+                    </>
+                  ) : (
+                    <>
+                      <h2>No Results Yet</h2>
+                      <p>Run tests to see results for this test case</p>
+                    </>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
             <Button
               variant="ghost"
               className="text-white bg-[#36c5b3] hover:bg-[#278f81] ml-[-120px]"
+              onClick={handleSubmit}
             >
               Run Test{(testCases.length > 1) && (<>s ({testCases.length})</>)}
             </Button>
