@@ -84,8 +84,11 @@ export default function LLMResponseComparison({ testCases, currentTestCase, upda
                   updateTestCase={updateTestCase}
                 />
               </TabsContent>
-              <TabsContent value="results">
-                <p>Results</p>
+              <TabsContent value="results" className="text-white">
+                <div className="w-full flex flex-col justify-center items-center">
+                  <h2>No Results Yet</h2>
+                  <p>Run tests to see results for this test case</p>
+                </div>
               </TabsContent>
             </Tabs>
             <Button
