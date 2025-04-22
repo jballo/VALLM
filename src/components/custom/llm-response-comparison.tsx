@@ -75,24 +75,27 @@ export default function LLMResponseComparison({ testCases, currentTestCase, upda
                 />
               </TabsContent>
               <TabsContent value="results" className="text-white">
-                <div className="w-full flex flex-col justify-center items-center">
+                <div className="w-full flex flex-col p-4 gap-5">
                   { (testCaseResults.filter((test) => test.id === currentTestCase).length === 1) ? (
                     <>
                       Results computed
-                      <p>Prompt: {testCaseResults.filter((test) => test.id === currentTestCase)[0].prompt}</p>
-                      <p>Expected Output: {testCaseResults.filter((test) => test.id === currentTestCase)[0].expectedOutput}</p>
-                      {(testCaseResults.filter((test) => test.id === currentTestCase)[0].llm_response.map((llm_res, index) => (
-                        <div key={index}>
-                          <p>Name: {llm_res.llm_name}</p>
-                          <p>Llm Response: {llm_res.llm_response}</p>
-                          <p>Contextual Relevancy Score: {llm_res.contextual_relevancy_score}</p>
-                          <p>Answer Relevancy Score: {llm_res.answer_relevancy_score}</p>
-                          <p>Bias Score: {llm_res.bias_success_score}</p>
-                          <p>Toxicity Score: {llm_res.toxicity_success_score}</p>
-                          <p>Correctness Score: {llm_res.correctness_success_score}</p>
-                        </div>
-                      )))}
-
+                      <div>
+                        <p>Prompt: {testCaseResults.filter((test) => test.id === currentTestCase)[0].prompt}</p>
+                        <p>Expected Output: {testCaseResults.filter((test) => test.id === currentTestCase)[0].expectedOutput}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        {(testCaseResults.filter((test) => test.id === currentTestCase)[0].llm_response.map((llm_res, index) => (
+                          <div key={index}>
+                            <p>Name: {llm_res.llm_name}</p>
+                            <p>Llm Response: {llm_res.llm_response}</p>
+                            <p>Contextual Relevancy Score: {llm_res.contextual_relevancy_score}</p>
+                            <p>Answer Relevancy Score: {llm_res.answer_relevancy_score}</p>
+                            <p>Bias Score: {llm_res.bias_success_score}</p>
+                            <p>Toxicity Score: {llm_res.toxicity_success_score}</p>
+                            <p>Correctness Score: {llm_res.correctness_success_score}</p>
+                          </div>
+                        )))}
+                      </div>
                     </>
                   ) : (
                     <>
