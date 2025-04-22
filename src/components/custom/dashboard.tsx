@@ -83,7 +83,7 @@ export default function Dashboard({ createEmbedding}: DashboardProps) {
                 const response = await fetch(`/api/create-response`, {
                     method: "POST",
                     headers: {
-                        'Content-Type': 'text/stream-event',
+                        'Content-Type': 'text/event-stream',
                     },
                     body: JSON.stringify({ 
                         text: test.prompt,
