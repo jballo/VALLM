@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 // import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useEffect } from "react";
+import { Home, LayoutDashboard, Sparkle } from "lucide-react";
 
 
 export default function Header() {
@@ -23,14 +24,14 @@ export default function Header() {
                 <h1 className="text-4xl">VALLM</h1>
             </div>
             <div className="flex flex-row gap-4">
-                <Button variant="link">
-                    Home
+                <Button variant="link" className="flex flex-row gap-1.5">
+                    <Home /> Home
                 </Button>
-                <Button variant="link">
-                    Features
+                <Button variant="link" className="flex flex-row gap-1.5">
+                    <LayoutDashboard /> Features
                 </Button>
-                <Button variant="link">
-                    Dashboard
+                <Button variant="link" className="flex flex-row gap-1.5">
+                    <Sparkle /> Dashboard
                 </Button>
                 <div className="flex flex-row gap-1">
                     <SignedIn>
