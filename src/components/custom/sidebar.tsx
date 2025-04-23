@@ -5,11 +5,19 @@ import { Button } from "../ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-// interface SidebarProps {
+interface TestCase {
+  id: string;
+  prompt: string;
+  expectedOutput: string;
+}
 
-// }
+interface SidebarProps {
+    testCases: TestCase[];
+    addTestCase: () => void;
+    setCurrentTestCase: (testId: string) => void;
+}
 
-export default function Sidebar() {
+export default function Sidebar({ testCases, addTestCase, setCurrentTestCase }: SidebarProps) {
     const [collapsed, setCollapsed] = useState<boolean>(false);
 
 
@@ -40,7 +48,18 @@ export default function Sidebar() {
         </div>
         {/* Sidebar Content */}
         <div className="flex flex-col h-full p-1 overflow-y-auto gap-1 text-white">
-            <Button
+            {testCases.map((test, index) => (
+                <Button
+                    key={index}
+                    variant="ghost"
+                    className="hover:bg-[#36c5b3]"
+                    onClick={() => setCurrentTestCase(test.id)}
+                >
+                    {!collapsed ? `Test case ${index + 1}` : `${index + 1}`}
+                </Button>
+            ))}
+
+            {/* <Button
                 variant="ghost"
                 className="hover:bg-[#36c5b3]"
             >
@@ -63,7 +82,7 @@ export default function Sidebar() {
                 className="hover:bg-[#36c5b3]"
             >
                 {!collapsed ? "Test Case 4" : "4"}
-            </Button>
+            </Button> */}
 
         </div>
         <div className="w-full flex justify-center">
@@ -74,7 +93,10 @@ export default function Sidebar() {
             "justify-center flex-col": collapsed,
             "justify-between flex-row": !collapsed,
         })}>
-            <Button className="w-full bg-[#36c5b3] hover:bg-[#278f81]">
+            <Button 
+                className="w-full bg-[#36c5b3] hover:bg-[#278f81]"
+                onClick={addTestCase}
+            >
                 {!collapsed ? "Add Test Case" : <Plus />}
             </Button>
             <Button className="w-[10px] bg-[#011627] hover:bg-[#36c5b3]"><Upload /></Button>
