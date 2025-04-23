@@ -80,70 +80,75 @@ export default function Dashboard({ createEmbedding}: DashboardProps) {
 
 
             await Promise.all(validTestCases.map(async (test) => {
-                const response = await fetch(`/api/create-response`, {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'text/event-stream',
-                    },
-                    body: JSON.stringify({ 
-                        text: test.prompt,
-                        url: url,
-                        expectedOutput: test.expectedOutput,
-                     })
-                });
-
-                if (!response.ok){
-                    console.log("Failed to generate llm response");
-                }
-                const res = await response.text();
-                const arr = res.split('data: ');
-                const validArr = arr.filter((item) => item.length > 0);
-                // const res = await resonse.json();
-                console.log("Res: ", res);
-                console.log("arr: ", arr);
-                console.log("Valid Arr: ", validArr);
-
-                const llm_arr: LLMResponse[] = validArr.map((llm_res) => {
-                    console.log("llm_res: ", llm_res);
-                    const parsedItem = JSON.parse(llm_res);
-                    return {
-                        llm_name: parsedItem.llm_name,
-                        llm_response: parsedItem.llm_response,
-                        contextual_relevancy_score: parsedItem.contextual_relevancy_score,
-                        answer_relevancy_score: parsedItem.answer_relevancy_score,
-                        bias_success_score: parsedItem.bias_success_score,
-                        toxicity_success_score: parsedItem.toxicity_success_score,
-                        correctness_success_score: parsedItem.correctness_success_score,
+                try {
+                    const response = await fetch(`/api/create-response`, {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'text/event-stream',
+                        },
+                        body: JSON.stringify({ 
+                            text: test.prompt,
+                            url: url,
+                            expectedOutput: test.expectedOutput,
+                         })
+                    });
+    
+                    if (!response.ok){
+                        // console.log("Failed to generate llm response");
+                        throw new Error(`Failed to generate llm response. Status: ${response.status}`)
                     }
-                });
+                    const res = await response.text();
+                    const arr = res.split('data: ');
+                    const validArr = arr.filter((item) => item.length > 0);
+                    // const res = await resonse.json();
+                    console.log("Res: ", res);
+                    console.log("arr: ", arr);
+                    console.log("Valid Arr: ", validArr);
+    
+                    const llm_arr: LLMResponse[] = validArr.map((llm_res) => {
+                        console.log("llm_res: ", llm_res);
+                        const parsedItem = JSON.parse(llm_res);
+                        return {
+                            llm_name: parsedItem.llm_name,
+                            llm_response: parsedItem.llm_response,
+                            contextual_relevancy_score: parsedItem.contextual_relevancy_score,
+                            answer_relevancy_score: parsedItem.answer_relevancy_score,
+                            bias_success_score: parsedItem.bias_success_score,
+                            toxicity_success_score: parsedItem.toxicity_success_score,
+                            correctness_success_score: parsedItem.correctness_success_score,
+                        }
+                    });
+    
+                    const singleTestCaseRes = {
+                        id: test.id,
+                        prompt: test.prompt,
+                        expectedOutput: test.expectedOutput,
+                        llm_response: llm_arr,
+                    }
+    
+                    setTestCaseResults((prev) => [...prev, singleTestCaseRes]);
+                } catch (error) {
+                    console.log("Error: ", error);
+                    const singleTestCase = {
+                        id: test.id,
+                        prompt: test.prompt,
+                        expectedOutput: test.expectedOutput,
+                        llm_response: [{
+                            llm_name: "n/a",
+                            llm_response: "n/a",
+                            contextual_relevancy_score: 0,
+                            answer_relevancy_score: 0,
+                            bias_success_score: 0,
+                            toxicity_success_score: 0,
+                            correctness_success_score: 0,
+                        }]
+                    }
 
-                const singleTestCaseRes = {
-                    id: test.id,
-                    prompt: test.prompt,
-                    expectedOutput: test.expectedOutput,
-                    llm_response: llm_arr,
+                    setTestCaseResults((prev) => [...prev, singleTestCase]);
                 }
-
-                setTestCaseResults((prev) => [...prev, singleTestCaseRes]);
-
-                // const result: TestCaseResult = {
-                //     id: test.id,
-                //     prompt: test.prompt,
-                //     expectedOutput: test.expectedOutput,
-                //     llm_name: res.llm_name,
-                //     llm_response: res.llm_response,
-                //     contextual_relevancy_score: res.contextual_relevancy_score,
-                //     answer_relevancy_score: res.answer_relevancy_score,
-                //     bias_success_score: res.bias_success_score,
-                //     toxicity_success_score: res.toxicity_success_score,
-                //     correctness_success_score: res.correctness_success_score,
-                // }
-
-                // setTestCaseResults((prev) => [...prev, result]);
-
+                
             }));
 
-            // setTabVal(id);
         }
     };
 
@@ -151,13 +156,13 @@ export default function Dashboard({ createEmbedding}: DashboardProps) {
         addTestCase();
     }, []);
     
-    useEffect(() => {
-        console.log("Test cases: ", testCases);
-    }, [testCases]);
+    // useEffect(() => {
+    //     console.log("Test cases: ", testCases);
+    // }, [testCases]);
 
-    useEffect(() => {
-        console.log("Current test case: ", currentTestCase);
-    }, [currentTestCase]);
+    // useEffect(() => {
+    //     console.log("Current test case: ", currentTestCase);
+    // }, [currentTestCase]);
 
     return (
         <div className="w-full min-h-screen p-12 flex flex-col gap-6">

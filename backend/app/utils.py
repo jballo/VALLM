@@ -319,7 +319,7 @@ def generate_response(model, prompt, context, expected_output):
             toxicity_success_score = llama_instant_relevancy_scores["toxicity_success_rate"]
             correctness_success_score = llama_instant_relevancy_scores["correctness_success_rate"]
 
-        elif model == "qwen-qwq-32b":
+        elif model == "mistral-saba-24b":
             qwen_completion = groq_client.chat.completions.create(
                 messages=[
                     {
@@ -331,7 +331,7 @@ def generate_response(model, prompt, context, expected_output):
                         "content": prompt,
                     }
                 ],
-                model="qwen-qwq-32b",
+                model="mistral-saba-24b",
                 # max_tokens=60
             )
             qwen_response = qwen_completion.choices[0].message.content

@@ -5,6 +5,7 @@ from app.extensions import groq_client, openai_client
 from multiprocessing import Pool, Lock
 import pprint
 import json
+# import time
 
 
 # Initalize a lock
@@ -28,11 +29,13 @@ def llm_response():
         contxt = data['retrieval_context']
         expected_output = data['expectedOutput']
 
+        # time.sleep(600)
+
 
         models_list = [
             ("llama-3.3-70b-versatile", prompt, contxt, expected_output),
             ("llama-3.1-8b-instant", prompt, contxt, expected_output),
-            ("qwen-2.5-32b", prompt, contxt, expected_output),
+            ("mistral-saba-24b", prompt, contxt, expected_output),
             ("gpt-4o-mini", prompt, contxt, expected_output),
         ]
 
