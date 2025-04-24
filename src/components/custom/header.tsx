@@ -6,10 +6,12 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import { useEffect } from "react";
 import { Home, LayoutDashboard, Sparkle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 
 export default function Header() {
     const { user, isSignedIn } = useUser();
+    const router = useRouter();
     // const [userImage, setUserImage] = useState<string>("");
     
     useEffect(() => {
@@ -24,13 +26,24 @@ export default function Header() {
                 <h1 className="text-4xl">VALLM</h1>
             </div>
             <div className="flex flex-row gap-4">
-                <Button variant="link" className="flex flex-row gap-1.5">
+                <Button 
+                    variant="link" 
+                    className="flex flex-row gap-1.5"
+                    onClick={() => router.push('/')}
+                >
                     <Home /> Home
                 </Button>
-                <Button variant="link" className="flex flex-row gap-1.5">
+                <Button 
+                    variant="link" 
+                    className="flex flex-row gap-1.5"
+                >
                     <LayoutDashboard /> Features
                 </Button>
-                <Button variant="link" className="flex flex-row gap-1.5">
+                <Button 
+                    variant="link" 
+                    className="flex flex-row gap-1.5" 
+                    onClick={() => router.push('/dashboard')}
+                >
                     <Sparkle /> Dashboard
                 </Button>
                 <div className="flex flex-row gap-1">
