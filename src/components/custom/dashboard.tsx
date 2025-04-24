@@ -168,7 +168,7 @@ export default function Dashboard({ createEmbedding}: DashboardProps) {
         <div className="w-full min-h-screen p-12 flex flex-col gap-6">
               <Header />
               <div className="flex flex-row h-full">
-                <Sidebar testCases={testCases} addTestCase={addTestCase} setCurrentTestCase={setCurrentTestCase}/>
+                <Sidebar testCases={testCases} addTestCase={addTestCase} currentTestCase={currentTestCase} setCurrentTestCase={setCurrentTestCase}/>
                 <div className="w-full">
                     <PromptForm createEmbedding={createEmbedding} url={url} setUrl={setUrl}/>
                     <LLMResponseComparison 

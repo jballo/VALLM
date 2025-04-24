@@ -14,10 +14,11 @@ interface TestCase {
 interface SidebarProps {
     testCases: TestCase[];
     addTestCase: () => void;
+    currentTestCase: string;
     setCurrentTestCase: (testId: string) => void;
 }
 
-export default function Sidebar({ testCases, addTestCase, setCurrentTestCase }: SidebarProps) {
+export default function Sidebar({ testCases, addTestCase, currentTestCase, setCurrentTestCase }: SidebarProps) {
     const [collapsed, setCollapsed] = useState<boolean>(false);
 
 
@@ -52,7 +53,9 @@ export default function Sidebar({ testCases, addTestCase, setCurrentTestCase }: 
                 <Button
                     key={index}
                     variant="ghost"
-                    className="hover:bg-[#36c5b3]"
+                    className={cn("hover:bg-[#36c5b3] hover:text-white", {
+                        "bg-[#36c5b3]": (test.id === currentTestCase),
+                    })}
                     onClick={() => setCurrentTestCase(test.id)}
                 >
                     {!collapsed ? `Test case ${index + 1}` : `${index + 1}`}
