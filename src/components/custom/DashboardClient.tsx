@@ -43,7 +43,7 @@ interface DashboardProps {
 
 
 
-export default function Dashboard({ createEmbedding}: DashboardProps) {
+export default function DashboardClient({ createEmbedding}: DashboardProps) {
     const [url, setUrl] = useState<string>("");
     const [testCases, setTestCases] = useState<TestCase[]>([]);
     const [currentTestCase, setCurrentTestCase] = useState<string>("");
