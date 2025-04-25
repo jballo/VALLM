@@ -57,15 +57,24 @@ export default function LLMResponseComparison({ testCases, currentTestCase, upda
   }, [resultTab]);
 
   return (
-    <div className="container mx-auto p-4 space-y-8">
+    <div className=" w-full p-2">
       <div className="bg-[#011627] rounded-3xl">
-          <div className="flex flex-row justify-between p-10">
+          <div className="flex flex-row w-full justify-between">
             <Tabs defaultValue="editor" className="w-full">
-              <TabsList className="bg-[#152838]">
-                <TabsTrigger value="editor" className="data-[state=active]:bg-[#36c5b3] data-[state=active]:text-white"><Stars />Editor</TabsTrigger>
-                <TabsTrigger value="results" className="data-[state=active]:bg-[#36c5b3] data-[state=active]:text-white"><Zap />Results</TabsTrigger>
-              </TabsList>
-              <TabsContent value="editor" className="min-w-screen">
+              <div className="flex flex-row justify-between w-full px-2.5 pt-3.5">
+                <TabsList className="bg-[#152838]">
+                  <TabsTrigger value="editor" className="data-[state=active]:bg-[#36c5b3] data-[state=active]:text-white"><Stars />Editor</TabsTrigger>
+                  <TabsTrigger value="results" className="data-[state=active]:bg-[#36c5b3] data-[state=active]:text-white"><Zap />Results</TabsTrigger>
+                </TabsList>
+                <Button
+                  variant="ghost"
+                  className="text-white bg-[#36c5b3] hover:bg-[#278f81] "
+                  onClick={handleSubmit}
+                >
+                  Run Test{(testCases.length > 1) && (<>s ({testCases.length})</>)}
+                </Button>
+              </div>
+              <TabsContent value="editor" className="w-full">
                 <TestCaseInput
                   // setSubmittedTests={setSubmittedTests}
                   // setResultTab={setResultTab}
@@ -106,41 +115,15 @@ export default function LLMResponseComparison({ testCases, currentTestCase, upda
                 </div>
               </TabsContent>
             </Tabs>
-            <Button
+            {/* <Button
               variant="ghost"
-              className="text-white bg-[#36c5b3] hover:bg-[#278f81] ml-[-120px]"
+              className="text-white bg-[#36c5b3] hover:bg-[#278f81] "
               onClick={handleSubmit}
             >
               Run Test{(testCases.length > 1) && (<>s ({testCases.length})</>)}
-            </Button>
+            </Button> */}
           </div>
       </div>
-      {/* {submittedTests.length > 0 && resultTab.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Test Results</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs value={resultTab} onValueChange={setResultTab}>
-              <TabsList>
-                {submittedTests.map((test, index) => (
-                  <TabsTrigger key={index} value={test.id}>
-                    Result {index + 1}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              {submittedTests.map((test, index) => (
-                <Results
-                  key={test.id}
-                  index={index}
-                  url={url}
-                  test={test}
-                />
-              ))}
-            </Tabs>
-          </CardContent>
-        </Card>
-      )} */}
     </div>
   );
 }

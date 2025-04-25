@@ -171,12 +171,14 @@ export default function DashboardClient({ createEmbedding}: DashboardProps) {
     // }, [currentTestCase]);
 
     return (
-        <div className="w-full min-h-screen p-12 flex flex-col gap-6">
+        <div className="w-full min-h-screen p-12 flex flex-col gap-6 bg-[#011627]">
               <Header />
-              <div className="flex flex-row h-full">
+              <div className="flex flex-row w-full h-full border-[1px] border-[#332E5C] rounded-xl">
                 <Sidebar testCases={testCases} addTestCase={addTestCase} currentTestCase={currentTestCase} setCurrentTestCase={setCurrentTestCase}/>
                 <div className="w-full">
-                    <PromptForm createEmbedding={createEmbedding} url={url} setUrl={setUrl}/>
+                    <div className="border-b-[1px] border-[#332E5C] p-4">
+                        <PromptForm createEmbedding={createEmbedding} url={url} setUrl={setUrl}/>
+                    </div>
                     <LLMResponseComparison 
                         // url={url}
                         testCases={testCases}

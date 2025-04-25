@@ -28,7 +28,7 @@ export default function Sidebar({ testCases, addTestCase, currentTestCase, setCu
         setCollapsed(!collapsed);
     }
 
-    return (<div className={cn("flex flex-col min-h-full max-h-[80vh] bg-[#091931]", {
+    return (<div className={cn("flex flex-col min-h-full max-h-[80vh] bg-[#091931] rounded-l-xl border-r-[1px] border-[#332E5C]", {
         "w-[240px]": !collapsed,
         "w-[50px]": collapsed,
     })}>
