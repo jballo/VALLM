@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 // export const maxDuration = 5;
@@ -5,13 +6,17 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
-    const body = await request.json();
-    console.log("Body: ", body);
-    const text = body.text;
-    const url = body.url;
-    const expectedOutput = body.expectedOutput;
-
+    
     try {
+        // If there is no signed in user, this will return a 404 error
+        await auth.protect();
+        
+        const body = await request.json();
+        console.log("Body: ", body);
+        const text = body.text;
+        const url = body.url;
+        const expectedOutput = body.expectedOutput;
+
         const rag_url = new URL(process.env.RAG_RETRIEVAL_ENDPOINT || "http://127.0.0.1:8000/api/v1/retrieval-augmented-generations");
 
         rag_url.searchParams.set("prompt", text);
