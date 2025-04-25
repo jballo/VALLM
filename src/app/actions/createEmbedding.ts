@@ -1,10 +1,15 @@
 "use server";
 
+import { auth } from "@clerk/nextjs/server";
+
 
 export async function createEmbedding(url: string) {
     console.log("Url in actions: ", url);
 
     try {
+        // If there is no signed in user, this will return a 404 error
+        await auth.protect();
+
         const scrape_url_endpoint = new URL(process.env.SCRAPE_ENDPOINT || "http://127.0.0.1:8000/api/v1/scrape");
 
         scrape_url_endpoint.searchParams.set("url", url);
