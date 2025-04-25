@@ -153,8 +153,14 @@ export default function DashboardClient({ createEmbedding}: DashboardProps) {
     };
 
     useEffect(() => {
+        console.log("Mounting Dashboard Client...")
         addTestCase();
+
+        return () => {
+            console.log("Unmounting Dashboard Client...");
+        }
     }, []);
+
     
     // useEffect(() => {
     //     console.log("Test cases: ", testCases);
