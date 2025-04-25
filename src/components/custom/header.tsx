@@ -23,25 +23,25 @@ export default function Header() {
     return(
         <div className="w-full flex flex-row justify-between">
             <div>
-                <h1 className="text-4xl">VALLM</h1>
+                <h1 className="text-4xl text-white">VALLM</h1>
             </div>
             <div className="flex flex-row gap-4">
                 <Button 
                     variant="link" 
-                    className="flex flex-row gap-1.5"
+                    className="flex flex-row gap-1.5 text-white"
                     onClick={() => router.push('/')}
                 >
                     <Home /> Home
                 </Button>
                 <Button 
                     variant="link" 
-                    className="flex flex-row gap-1.5"
+                    className="flex flex-row gap-1.5 text-white"
                 >
                     <LayoutDashboard /> Features
                 </Button>
                 <Button 
                     variant="link" 
-                    className="flex flex-row gap-1.5" 
+                    className="flex flex-row gap-1.5 text-white" 
                     onClick={() => router.push('/dashboard')}
                 >
                     <Sparkle /> Dashboard

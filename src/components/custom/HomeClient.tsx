@@ -3,7 +3,8 @@
 import { ArrowRight, BrainCircuit, ChartColumn, CircleCheckBig, FileText, Globe, LayoutDashboard, MessageSquare, Zap } from "lucide-react";
 import { Button } from "../ui/button";
 import Header from "./header";
-
+import Image from "next/image";
+import VALLMDashboard from "../../../public/VALLM_DASHBOARD.jpeg"
 
 
 export default function HomeClient(){
@@ -21,6 +22,7 @@ export default function HomeClient(){
                         <Button className="bg-[#37C5B3] hover:bg-[#2da192]">Go to Dashboard</Button>
                         <Button variant="ghost">View Demo</Button>
                     </div>
+                    <Image src={VALLMDashboard} alt="VALLM Dashboard" width={800} height={300}/>
                 </div>
                 {/* Key Features */}
                 <div className="flex flex-col w-screen bg-[#091931] gap-3">

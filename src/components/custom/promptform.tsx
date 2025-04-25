@@ -53,7 +53,7 @@ export default function PromptForm( { createEmbedding, url, setUrl }: PromptForm
         }
     }
     return (
-        <div className="flex flex-col w-full bg-[#0e2232] text-white p-3 rounded-xl">
+        <div className="flex flex-col w-full bg-[#0e2232] text-white p-4 rounded-lg">
             <div className="w-full flex flex-col gap-2">
                 <div className="flex flex-row gap-6">
                     <div className="flex flex-row gap-1">
