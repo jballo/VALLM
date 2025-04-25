@@ -4,6 +4,8 @@
 
 VALLM (Vision Assisted Large Language Model) is a web application that helps users determine the most suitable Large Language Model (LLM) for their website or platform needs. Users can input URLs, provide test cases, and evaluate the responses from different LLMs to make informed decisions. The application aims to streamline the LLM selection process, saving developers time and resources.
 
+![image](https://gw3qhbh6tl.ufs.sh/f/Q48fIVJi2U4uBGbfPyQILryJKSD3OdXv0UQio5Eaezxjcbhl)
+
 ## Features
 
 -   **LLM Comparison:** Allows users to compare the performance of different LLMs on the same input data.
@@ -15,7 +17,7 @@ VALLM (Vision Assisted Large Language Model) is a web application that helps use
 
 -   **Frontend:** Next.js, Typescript, TailwindCSS
 -   **Backend:** Flask (Python)
--   **Database:**  PostgreSQL (Planned)
+-   **Database:** PostgreSQL
 -   **APIs:** Groq, OpenAI
 -   **Deployment:** Vercel (Frontend), [Choose your own adventure for backend - e.g., Render, AWS, GCP]
 
@@ -90,12 +92,10 @@ VALLM (Vision Assisted Large Language Model) is a web application that helps use
 *   **API Integration:** Implement a robust and well-documented API layer for communication between the frontend and backend. Ensure proper error handling and data validation.
 *   **State Management:** For complex state management, consider using Zustand or Redux Toolkit. However, start simple and only introduce state management when necessary.
 *   **Testing:** Implement unit and integration tests to ensure code quality and prevent regressions. Use Jest and React Testing Library for testing React components and pytest for backend testing.
-*   **Database Setup:** Configure the PostgreSQL database using SQLAlchemy in the Flask backend. Ensure proper connection pooling and error handling.
-*   **Environment Variables:** Securely manage environment variables using a tool like `python-dotenv` for local development and a secrets management solution for production.
+
 
 ## Future Enhancements
 
-*   **User Authentication:** Implement user authentication and authorization using a library like NextAuth.js (for the frontend) and Flask-Login or a JWT-based solution (for the backend).
 *   **CI/CD:** Set up a CI/CD pipeline for automated testing and deployment using tools like GitHub Actions, GitLab CI, or CircleCI.
 *   **Rate Limiting:** Implement rate limiting on your API endpoints to prevent abuse.
 *   **Caching:** Implement caching to improve performance and reduce the load on your LLM APIs.
