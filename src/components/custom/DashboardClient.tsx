@@ -6,9 +6,9 @@ import PromptForm from "./promptform";
 import LLMResponseComparison from "./llm-response-comparison";
 import Sidebar from "./sidebar";
 import { v4 as uuidv4 } from "uuid";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Alert, AlertDescription } from "../ui/alert";
 import { Button } from "../ui/button";
-import { CircleX, OctagonX, TriangleAlert, X } from "lucide-react";
+import { TriangleAlert, X } from "lucide-react";
 
 interface LLMResponse {
     llm_name: string,
