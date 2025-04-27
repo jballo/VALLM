@@ -6,6 +6,9 @@ import PromptForm from "./promptform";
 import LLMResponseComparison from "./llm-response-comparison";
 import Sidebar from "./sidebar";
 import { v4 as uuidv4 } from "uuid";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Button } from "../ui/button";
+import { CircleX, OctagonX, TriangleAlert, X } from "lucide-react";
 
 interface LLMResponse {
     llm_name: string,
@@ -49,6 +52,8 @@ export default function DashboardClient({ createEmbedding}: DashboardProps) {
     const [currentTestCase, setCurrentTestCase] = useState<string>("");
     const [testCaseResults, setTestCaseResults] = useState<TestCaseResult[]>([]);
 
+    const [urlAlert, setUrlAlert] = useState<boolean>(false);
+
     const addTestCase = () => {
         const id = uuidv4();
         // setTestCases([...testCases, { id: id, prompt: "", expectedOutput: "" }]);
@@ -67,16 +72,32 @@ export default function DashboardClient({ createEmbedding}: DashboardProps) {
         );
     };
 
+    const isValidUrl = (url: string) => {
+        try {
+            new URL(url);
+            return true;
+        } catch (error) {
+            console.log("Note valid url: Error: ", error);
+            return false;
+        }
+        // const pattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-]*)*$/;
+        // const valid = pattern.test(url);
+        // console.log(`Valid URL (${url}): `, valid);
+        // return valid;
+    };
+
 
     const handleSubmit = async () => {
         const validTestCases = testCases.filter(
         (tc) => tc.prompt.trim() && tc.expectedOutput.trim()
         );
+        if (!isValidUrl(url)){
+            setUrlAlert(true);
+            return;
+        }
+
         if (validTestCases.length > 0) {
             console.log("Valid test cases: ", validTestCases);
-            // const id = uuidv4();
-            // setTestCases([{ id: id, prompt: "", expectedOutput: "" }]);
-            // setCurrentTestCase(id);
 
 
             await Promise.all(validTestCases.map(async (test) => {
@@ -179,6 +200,23 @@ export default function DashboardClient({ createEmbedding}: DashboardProps) {
                     <div className="border-b-[1px] border-[#332E5C] p-4">
                         <PromptForm createEmbedding={createEmbedding} url={url} setUrl={setUrl}/>
                     </div>
+                    { urlAlert && (
+                        <div className="flex flex-row justify-center w-full px-4 pt-4">
+                            <Alert variant="destructive" className="flex flex-row justify-between items-center w-full h-[40px]">
+                                <AlertDescription className="flex flex-row items-center text-center gap-3">
+                                    <TriangleAlert />
+                                    Enter a valid url to submit a test.
+                                </AlertDescription>
+                                <Button 
+                                    variant="destructive" 
+                                    className="w-7 h-7"
+                                    onClick={() => setUrlAlert(false)}
+                                >
+                                    <X />
+                                </Button>
+                            </Alert>
+                        </div>
+                    )}
                     <LLMResponseComparison 
                         // url={url}
                         testCases={testCases}
