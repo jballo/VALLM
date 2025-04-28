@@ -27,10 +27,16 @@ interface TestCaseResult {
     llm_response: LLMResponse[],
 }
 
+interface ModelChoice {
+  model: string;
+  selected: boolean;
+}
+
 interface TestCase {
   id: string;
   prompt: string;
   expectedOutput: string;
+  models: ModelChoice[];
 }
 
 interface CreateEmbeddingProp {
@@ -57,7 +63,29 @@ export default function DashboardClient({ createEmbedding}: DashboardProps) {
     const addTestCase = () => {
         const id = uuidv4();
         // setTestCases([...testCases, { id: id, prompt: "", expectedOutput: "" }]);
-        setTestCases((prev) => [...prev, { id: id, prompt: "", expectedOutput: "" }]);
+        setTestCases((prev) => [...prev, { 
+            id: id, 
+            prompt: "", 
+            expectedOutput: "" , 
+            models: [
+                {
+                model: "llama-3.3-70b-versatile",
+                selected: false,
+                },
+                {
+                model: "llama-3.1-8b-instant",
+                selected: false,
+                },
+                {
+                model: "mistral-saba-24b",
+                selected: false,
+                },
+                {
+                model: "gpt-4o-mini",
+                selected: false,
+                },
+            ]}]
+        );
         // setTabVal(id);
         setCurrentTestCase(id);
     };
@@ -102,6 +130,25 @@ export default function DashboardClient({ createEmbedding}: DashboardProps) {
 
             await Promise.all(validTestCases.map(async (test) => {
                 try {
+
+                    // const models = test.models.filter((model) => {
+                    //     if (model.selected == true) {
+                    //         return model.model;
+                    //     }
+                    // });
+                    const models: string[] = [];
+
+                    // for (const model in test.models) {
+                    //     console.log(model[]);
+                    // }
+
+                    test.models.map((model) => {
+                        if (model.selected == true) {
+                            models.push(model.model);
+                        }
+                    });
+                    console.log("models: ", models);
+
                     const response = await fetch(`/api/create-response`, {
                         method: "POST",
                         headers: {
@@ -111,6 +158,7 @@ export default function DashboardClient({ createEmbedding}: DashboardProps) {
                             text: test.prompt,
                             url: url,
                             expectedOutput: test.expectedOutput,
+                            models,
                          })
                     });
     
@@ -224,6 +272,7 @@ export default function DashboardClient({ createEmbedding}: DashboardProps) {
                         updateTestCase={updateTestCase}
                         handleSubmit={handleSubmit}
                         testCaseResults={testCaseResults}
+                        setTestCases={setTestCases}
                     />
                 </div>
               </div>

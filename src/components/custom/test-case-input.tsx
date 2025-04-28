@@ -10,11 +10,24 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "../ui/command";
 import { Toggle } from "../ui/toggle";
 import { ChevronDown } from "lucide-react";
+// import { useEffect } from "react";
+
+interface ModelChoice {
+  model: string;
+  selected: boolean;
+}
 
 interface TestCase {
   id: string;
   prompt: string;
   expectedOutput: string;
+  models: ModelChoice[];
+}
+
+
+interface ModelChoice {
+  model: string;
+  selected: boolean;
 }
 
 interface TestCaseInputProps {
@@ -25,27 +38,36 @@ interface TestCaseInputProps {
   updateTestCase: (id: string,
         field: "prompt" | "expectedOutput",
         value: string) => void;
+  setTestCases: (newTest: TestCase[]) => void;
 }
 
-export default function TestCaseInput({ testCases, currentTestCase, updateTestCase }: TestCaseInputProps) {
+export default function TestCaseInput({ testCases, currentTestCase, updateTestCase, setTestCases }: TestCaseInputProps) {
 
-  // const handleSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   const validTestCases = testCases.filter(
-  //     (tc) => tc.prompt.trim() && tc.expectedOutput.trim()
-  //   );
-  //   if (validTestCases.length > 0) {
-  //     // onSubmit(validTestCases);
-  //     console.log("Valid test cases: ", validTestCases);
-  //     // setSubmittedTests([]);
-  //     setSubmittedTests(validTestCases);
-  //     setResultTab(validTestCases[0].id);
-  //     const id = uuidv4();
-  //     setTestCases([{ id: id, prompt: "", expectedOutput: "" }]);
-  //     setTabVal(id);
-  //   }
-  // };
 
+  const onPressedChange = (modelName: string) => {
+    console.log("pressed...");
+    // const updatedModelList = models.map((model) => {
+    //   if (model.model == modelName) {
+    //     model.selected = !model.selected;
+    //   }
+    //   return model;
+    // })
+    // setModels(updatedModelList);
+
+    const updatedTestCases = testCases.map((test) => {
+      if (test.id === currentTestCase) {
+        test.models.map((model) => {
+          if (model.model == modelName) {
+            model.selected = !model.selected;
+          }
+        }) 
+      }
+      return test;
+    })
+    setTestCases(updatedTestCases);
+  }
+
+  
 
   return (
     <>
@@ -130,10 +152,50 @@ export default function TestCaseInput({ testCases, currentTestCase, updateTestCa
             <div>
               <h3>Available Models</h3>
               <div className="grid grid-cols-2 gap-3">
-                <Toggle className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white">GPT-4o-min</Toggle>
-                <Toggle className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white">Llama 3.3 70B Versatile</Toggle>
-                <Toggle className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white">Qwen 2.5 32B</Toggle>
-                <Toggle className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white">Llama 3.1 8B Instant</Toggle>
+                <Toggle 
+                  className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white" 
+                  pressed={(testCases.filter((test) => {
+                    if (test.id === currentTestCase) {
+                      return test;
+                    }
+                  }))[0].models[3].selected} 
+                  onPressedChange={() => onPressedChange("gpt-4o-mini")}
+                >
+                  gpt-4o-mini
+                </Toggle>
+                <Toggle 
+                  className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white"
+                  pressed={(testCases.filter((test) => {
+                    if (test.id === currentTestCase) {
+                      return test;
+                    }
+                  }))[0].models[0].selected}
+                  onPressedChange={() => onPressedChange("llama-3.3-70b-versatile")}
+                >
+                  Llama 3.3 70B Versatile
+                </Toggle>
+                <Toggle 
+                  className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white"
+                  pressed={(testCases.filter((test) => {
+                    if (test.id === currentTestCase) {
+                      return test;
+                    }
+                  }))[0].models[2].selected}
+                  onPressedChange={() => onPressedChange("mistral-saba-24b")}
+                >
+                  Mistral Saba 24B
+                </Toggle>
+                <Toggle 
+                  className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white"
+                  pressed={(testCases.filter((test) => {
+                    if (test.id === currentTestCase) {
+                      return test;
+                    }
+                  }))[0].models[1].selected}
+                  onPressedChange={() => onPressedChange("llama-3.1-8b-instant")}
+                >
+                  Llama 3.1 8B Instant
+                </Toggle>
               </div>
             </div>
           </div>
