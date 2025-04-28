@@ -22,8 +22,9 @@ export default function Header() {
 
     return(
         <div className="w-full flex flex-row justify-between">
-            <div>
-                <h1 className="text-4xl text-white">VALLM</h1>
+            <div className=" flex flex-row justify-center items-end gap-2">
+                <Image src="/VALLM_LOGO.png" alt="VALLM Logo" width={50} height={50}/>
+                <h1 className="text-3xl text-white">VALLM</h1>
             </div>
             <div className="flex flex-row gap-4">
                 <Button 
