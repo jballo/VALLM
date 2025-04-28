@@ -16,6 +16,7 @@ export async function POST(request: Request) {
         const text = body.text;
         const url = body.url;
         const expectedOutput = body.expectedOutput;
+        const models = body.models;
 
         const rag_url = new URL(process.env.RAG_RETRIEVAL_ENDPOINT || "http://127.0.0.1:8000/api/v1/retrieval-augmented-generations");
 
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
             },
             body: JSON.stringify({ 
                 text: context,
+                models,
                 retrieval_context,
                 expectedOutput,
              })
