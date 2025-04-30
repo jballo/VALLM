@@ -9,6 +9,11 @@ import { Home, LayoutDashboard, Sparkle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 
+/**
+ * Renders the application's header with navigation links, branding, and authentication controls.
+ *
+ * Displays the logo, app title, navigation buttons, and user authentication options. When signed in, shows the user's profile image and a sign-out button; when signed out, shows a sign-in button.
+ */
 export default function Header() {
     const { user, isSignedIn } = useUser();
     const router = useRouter();
