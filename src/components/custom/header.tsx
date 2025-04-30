@@ -23,7 +23,7 @@ export default function Header() {
     return(
         <div className="w-full flex flex-row justify-between">
             <div className=" flex flex-row justify-center items-end gap-2">
-                <Image src="/VALLM_LOGO.png" alt="VALLM Logo" width={50} height={50}/>
+                <Image src="https://gw3qhbh6tl.ufs.sh/f/Q48fIVJi2U4uBSKDllQILryJKSD3OdXv0UQio5Eaezxjcbhl" alt="VALLM Logo" width={50} height={50}/>
                 <h1 className="text-3xl text-white">VALLM</h1>
             </div>
             <div className="flex flex-row gap-4">
