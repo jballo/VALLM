@@ -17,7 +17,7 @@ import {
   CommandSeparator,
 } from "../ui/command";
 import { Toggle } from "../ui/toggle";
-import { ChevronDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { Badge } from "../ui/badge";
 // import { useEffect } from "react";
 
@@ -77,6 +77,35 @@ export default function TestCaseInput({
       }
       return test;
     });
+    setTestCases(updatedTestCases);
+  };
+
+  const selectAll = () => {
+    console.log("All Models Selected");
+    const updatedTestCases = testCases.map((test) => {
+      if (test.id === currentTestCase) {
+        test.models.map((model) => {
+          model.selected = true;
+        });
+      }
+      return test;
+    });
+
+    setTestCases(updatedTestCases);
+  };
+
+  const clearAll = () => {
+    console.log("All Models Cleared...");
+
+    const updatedTestCases = testCases.map((test) => {
+      if (test.id === currentTestCase) {
+        test.models.map((model) => {
+          model.selected = false;
+        });
+      }
+      return test;
+    });
+
     setTestCases(updatedTestCases);
   };
 
@@ -170,7 +199,10 @@ export default function TestCaseInput({
                     </div>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent side="top" className="bg-[#011627]">
+                <PopoverContent
+                  side="top"
+                  className="bg-[#011627] p-0 border-[0.5px]"
+                >
                   <Command className="w-full h-full bg-[#011627]">
                     <CommandInput
                       placeholder="Search Models..."
@@ -181,18 +213,24 @@ export default function TestCaseInput({
                         No models found.
                       </CommandEmpty>
                       <CommandGroup heading="Models" className="text-white">
-                        <CommandItem className="data-[selected=true]:bg-[#36c5b3] data-[selected=true]:text-white">
-                          GPT-4o-min
-                        </CommandItem>
-                        <CommandItem className="data-[selected=true]:bg-[#36c5b3] data-[selected=true]:text-white">
-                          Llama 3.3 70B Versatile
-                        </CommandItem>
-                        <CommandItem className="data-[selected=true]:bg-[#36c5b3] data-[selected=true]:text-white">
-                          Qwen 2.5 32B
-                        </CommandItem>
-                        <CommandItem className="data-[selected=true]:bg-[#36c5b3] data-[selected=true]:text-white">
-                          Llama 3.1 8B Instant
-                        </CommandItem>
+                        {testCases
+                          .filter((test) => test.id === currentTestCase)[0]
+                          .models.map((model, index) => (
+                            <CommandItem
+                              key={index}
+                              className="data-[selected=true]:bg-[#36c5b3] data-[selected=true]:text-white flex flex-row justify-between"
+                              onSelect={() => {
+                                console.log(
+                                  "Command Item Pressed: ",
+                                  model.model
+                                );
+                                onPressedChange(model.model);
+                              }}
+                            >
+                              {model.model}
+                              {model.selected && <Check />}
+                            </CommandItem>
+                          ))}
                       </CommandGroup>
                       <CommandSeparator />
                       <div className="w-full flex flex-row justify-between items-center p-2">
@@ -200,10 +238,16 @@ export default function TestCaseInput({
                           <p className="text-white">0 Selected</p>
                         </div>
                         <div className="flex flex-row items-center gap-2">
-                          <Button className="w-[70px] bg-[#011627] hover:bg-[#36c5b3] border-[1px] border-[#3F4E5D]">
+                          <Button
+                            className="w-[70px] bg-[#011627] hover:bg-[#36c5b3] border-[1px] border-[#3F4E5D]"
+                            onClick={selectAll}
+                          >
                             Select All
                           </Button>
-                          <Button className="w-[70px] bg-[#011627] hover:bg-[#36c5b3] border-[1px] border-[#3F4E5D]">
+                          <Button
+                            className="w-[70px] bg-[#011627] hover:bg-[#36c5b3] border-[1px] border-[#3F4E5D]"
+                            onClick={clearAll}
+                          >
                             Clear
                           </Button>
                         </div>
