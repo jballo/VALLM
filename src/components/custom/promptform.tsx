@@ -1,9 +1,11 @@
 "use client";
 
-import { Globe } from "lucide-react";
+import { Globe, TriangleAlert, X } from "lucide-react";
 // import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { useState } from "react";
+import { Alert, AlertDescription } from "../ui/alert";
 
 
 // interface LLMResponses {
@@ -36,9 +38,30 @@ interface PromptFormProps {
 }
 
 export default function PromptForm( { createEmbedding, url, setUrl }: PromptFormProps) {
+    const [urlAlert, setUrlAlert] = useState<boolean>(false);
+
+
+    const isValidUrl = (url: string) => {
+        try {
+            new URL(url);
+            return true;
+        } catch (error) {
+            console.log("Note valid url: Error: ", error);
+            return false;
+        }
+        // const pattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-]*)*$/;
+        // const valid = pattern.test(url);
+        // console.log(`Valid URL (${url}): `, valid);
+        // return valid;
+    };
 
     const submitUrl = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!isValidUrl(url)){
+            setUrlAlert(true);
+            return;
+        }
 
         try {
             const response = await createEmbedding(url);
@@ -71,14 +94,31 @@ export default function PromptForm( { createEmbedding, url, setUrl }: PromptForm
                         className="bg-[#213342] text-[#b1b7bd] border-[#3F4E5D]"
                         placeholder="https://example.com/page-to-scrape"
                         onChange={e => setUrl(e.target.value)}
-                    />
+                        />
                     <Button
                         className="bg-[#36c5b3]"
                         onClick={submitUrl}
-                    >
+                        >
                         Submit
                     </Button>
                 </div>
+                { urlAlert && (
+                    <div className="flex flex-row justify-center w-full">
+                        <Alert variant="destructive" className="flex flex-row justify-between items-center w-full h-[40px]">
+                            <AlertDescription className="flex flex-row items-center text-center gap-3">
+                                <TriangleAlert />
+                                Invalid URL Submitted
+                            </AlertDescription>
+                            <Button 
+                                variant="destructive" 
+                                className="w-7 h-7"
+                                onClick={() => setUrlAlert(false)}
+                            >
+                                <X />
+                            </Button>
+                        </Alert>
+                    </div>
+                )}
             </div>
         </div>
     )

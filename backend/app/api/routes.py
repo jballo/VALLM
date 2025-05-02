@@ -26,18 +26,15 @@ def llm_response():
         
         data = request.get_json()
         prompt = data['text']
+        models = data['models']
         contxt = data['retrieval_context']
         expected_output = data['expectedOutput']
+        
+        models_list = []
 
-        # time.sleep(600)
-
-
-        models_list = [
-            ("llama-3.3-70b-versatile", prompt, contxt, expected_output),
-            ("llama-3.1-8b-instant", prompt, contxt, expected_output),
-            ("mistral-saba-24b", prompt, contxt, expected_output),
-            ("gpt-4o-mini", prompt, contxt, expected_output),
-        ]
+        for model in models:
+            print("model: ", model)
+            models_list.append((model, prompt, contxt, expected_output))
 
         def generate():
             with Pool(4) as p:
