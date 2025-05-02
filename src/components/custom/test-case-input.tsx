@@ -233,9 +233,18 @@ export default function TestCaseInput({
                       </CommandGroup>
                       <CommandSeparator />
                       <div className="w-full flex flex-row justify-between items-center p-2">
-                        <div className="w-full flex flex-row">
-                          <p className="text-white">0 Selected</p>
-                        </div>
+                        {currentTest && (
+                          <div className="w-full flex flex-row">
+                            <p className="text-white">
+                              {
+                                currentTest.models.filter(
+                                  (model) => model.selected === true
+                                ).length
+                              }{" "}
+                              Selected
+                            </p>
+                          </div>
+                        )}
                         <div className="flex flex-row items-center gap-2">
                           <Button
                             className="w-[70px] bg-[#011627] hover:bg-[#36c5b3] border-[1px] border-[#3F4E5D]"
