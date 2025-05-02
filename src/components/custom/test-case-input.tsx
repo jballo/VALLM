@@ -19,7 +19,6 @@ import {
 import { Toggle } from "../ui/toggle";
 import { Check, ChevronDown } from "lucide-react";
 import { Badge } from "../ui/badge";
-// import { useEffect } from "react";
 
 interface ModelChoice {
   model: string;
@@ -57,36 +56,30 @@ export default function TestCaseInput({
   updateTestCase,
   setTestCases,
 }: TestCaseInputProps) {
+  const currentTest = testCases.find((test) => test.id === currentTestCase);
+
+  // useEffect(() => {
+  //   console.log("Current Test: ", currentTest);
+  // }, [currentTest]);
+
+  // useEffect(() => {
+  //   console.log("Test Cases: ", testCases);
+  // }, [testCases]);
+
   const onPressedChange = (modelName: string) => {
     console.log("pressed...");
-    // const updatedModelList = models.map((model) => {
-    //   if (model.model == modelName) {
-    //     model.selected = !model.selected;
-    //   }
-    //   return model;
-    // })
-    // setModels(updatedModelList);
 
     const updatedTestCases = testCases.map((test) => {
       if (test.id === currentTestCase) {
-        test.models.map((model) => {
-          if (model.model == modelName) {
-            model.selected = !model.selected;
-          }
-        });
-      }
-      return test;
-    });
-    setTestCases(updatedTestCases);
-  };
-
-  const selectAll = () => {
-    console.log("All Models Selected");
-    const updatedTestCases = testCases.map((test) => {
-      if (test.id === currentTestCase) {
-        test.models.map((model) => {
-          model.selected = true;
-        });
+        return {
+          ...test,
+          models: test.models.map((model) => {
+            if (model.model === modelName) {
+              return { ...model, selected: !model.selected };
+            }
+            return model;
+          }),
+        };
       }
       return test;
     });
@@ -94,20 +87,28 @@ export default function TestCaseInput({
     setTestCases(updatedTestCases);
   };
 
-  const clearAll = () => {
-    console.log("All Models Cleared...");
+  const toggleAll = (value: boolean) => {
+    if (!currentTest) return;
 
     const updatedTestCases = testCases.map((test) => {
       if (test.id === currentTestCase) {
-        test.models.map((model) => {
-          model.selected = false;
-        });
+        return {
+          ...test,
+          models: test.models.map((model) => ({
+            ...model,
+            selected: value,
+          })),
+        };
       }
       return test;
     });
 
     setTestCases(updatedTestCases);
   };
+
+  const selectAll = () => toggleAll(true);
+
+  const clearAll = () => toggleAll(false);
 
   return (
     <>
@@ -169,13 +170,12 @@ export default function TestCaseInput({
               </h4>
             </div>
             <div>
-              {testCases
-                .filter((test) => test.id == currentTestCase)[0]
-                .models.filter((model) => model.selected == true).length > 0 ? (
+              {currentTest &&
+              currentTest.models.filter((model) => model.selected == true)
+                .length > 0 ? (
                 <div className="w-full flex flex-row flex-wrap gap-2">
-                  {testCases
-                    .filter((test) => test.id == currentTestCase)[0]
-                    .models.filter((model) => model.selected == true)
+                  {currentTest.models
+                    .filter((model) => model.selected == true)
                     .map((selectedModel, index) => (
                       <Badge key={index} className="bg-[#9D4EDD]">
                         {selectedModel.model}
@@ -213,9 +213,8 @@ export default function TestCaseInput({
                         No models found.
                       </CommandEmpty>
                       <CommandGroup heading="Models" className="text-white">
-                        {testCases
-                          .filter((test) => test.id === currentTestCase)[0]
-                          .models.map((model, index) => (
+                        {currentTest &&
+                          currentTest.models.map((model, index) => (
                             <CommandItem
                               key={index}
                               className="data-[selected=true]:bg-[#36c5b3] data-[selected=true]:text-white flex flex-row justify-between"
@@ -259,64 +258,20 @@ export default function TestCaseInput({
             </div>
             <div>
               <h3>Available Models</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <Toggle
-                  className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white"
-                  pressed={
-                    testCases.filter((test) => {
-                      if (test.id === currentTestCase) {
-                        return test;
-                      }
-                    })[0].models[3].selected
-                  }
-                  onPressedChange={() => onPressedChange("gpt-4o-mini")}
-                >
-                  gpt-4o-mini
-                </Toggle>
-                <Toggle
-                  className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white"
-                  pressed={
-                    testCases.filter((test) => {
-                      if (test.id === currentTestCase) {
-                        return test;
-                      }
-                    })[0].models[0].selected
-                  }
-                  onPressedChange={() =>
-                    onPressedChange("llama-3.3-70b-versatile")
-                  }
-                >
-                  Llama 3.3 70B Versatile
-                </Toggle>
-                <Toggle
-                  className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white"
-                  pressed={
-                    testCases.filter((test) => {
-                      if (test.id === currentTestCase) {
-                        return test;
-                      }
-                    })[0].models[2].selected
-                  }
-                  onPressedChange={() => onPressedChange("mistral-saba-24b")}
-                >
-                  Mistral Saba 24B
-                </Toggle>
-                <Toggle
-                  className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white"
-                  pressed={
-                    testCases.filter((test) => {
-                      if (test.id === currentTestCase) {
-                        return test;
-                      }
-                    })[0].models[1].selected
-                  }
-                  onPressedChange={() =>
-                    onPressedChange("llama-3.1-8b-instant")
-                  }
-                >
-                  Llama 3.1 8B Instant
-                </Toggle>
-              </div>
+              {currentTest && (
+                <div className="grid grid-cols-2 gap-3">
+                  {currentTest.models.map((model, index) => (
+                    <Toggle
+                      key={index}
+                      className="text-xs p-1 border-[1px] border-[#3F4E5D] bg-[#011627] hover:bg-[#062835] hover:text-white data-[state=on]:bg-[#062835] data-[state=on]:border-[#36c5b3] data-[state=on]:text-white"
+                      pressed={model.selected}
+                      onPressedChange={() => onPressedChange(model.model)}
+                    >
+                      {model.model}
+                    </Toggle>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
