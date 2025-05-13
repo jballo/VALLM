@@ -5,6 +5,7 @@ import { Badge } from "../ui/badge";
 import UrlScraper from "./UrlScraper";
 import { useState } from "react";
 import clsx from "clsx";
+import { Button } from "../ui/button";
 
 interface CreateEmbeddingProp {
   createEmbedding: (
@@ -54,7 +55,7 @@ export default function PromptForm({
         </div>
         <div className="flex flex-row gap-3 bg-[#162838] rounded-lg p-3">
           <Info className="w-[20px]" />
-          <p className="text-[#AEB4BA] text-xs">
+          <div className="text-[#AEB4BA] text-xs">
             {scrapedContent ? (
               <div className="flex flex-col gap-2">
                 <h3 className="flex flex-row gap-3">
@@ -72,7 +73,7 @@ export default function PromptForm({
                 specific web content.
               </>
             )}
-          </p>
+          </div>
         </div>
       </div>
     </div>

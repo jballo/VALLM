@@ -73,67 +73,83 @@ export default function UrlScraper({
     }
   };
 
+  const clearUrlContent = () => {
+    setUrl("");
+    setScrapedContent("");
+  };
+
   return (
-    <Dialog open={dialogOpen} onOpenChange={() => setDialogOpen(!dialogOpen)}>
-      <DialogTrigger asChild>
+    <div className="flex flex-row gap-2">
+      {scrapedContent && (
         <Button
           variant="outline"
-          className="bg-[#011628] hover:bg-[#37C5B3] border-[#1E293B] hover:text-white"
-          onClick={() => setDialogOpen(true)}
+          className="bg-[#011628] hover:bg-[#111C3A] border-[#1E293B] text-[#9D4EDE] hover:text-[#9D4EDE]"
+          onClick={clearUrlContent}
         >
-          <Globe className="w-5" />
-          Add URL Source
+          Clear URL Content
         </Button>
-      </DialogTrigger>
-      <DialogContent className="text-white bg-[#0E2233] p-8 border-none w-2/5">
-        <DialogHeader>
-          <DialogTitle>URL Content Scraper</DialogTitle>
-          <DialogDescription>
-            Add web content as context for your test cases
-          </DialogDescription>
-        </DialogHeader>
-        <h2>URL to Scrape</h2>
-        <div className="w-full h-full flex flex-row gap-2">
-          <Input
-            type="text"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="www.example.com..."
-            className="pl-6 bg-[#223342] text-[#B0B7BD] border-none focus:border-[#36c5b3] focus:ring-2 focus:ring-[#36c5b3] focus-visible:ring-white"
-          />
+      )}
+      <Dialog open={dialogOpen} onOpenChange={() => setDialogOpen(!dialogOpen)}>
+        <DialogTrigger asChild>
           <Button
-            className="bg-[#36c5b3] hover:bg-[#278f81]"
-            onClick={onSubmit}
+            variant="outline"
+            className="bg-[#011628] hover:bg-[#37C5B3] border-[#1E293B] hover:text-white"
+            onClick={() => setDialogOpen(true)}
           >
-            Scrape URL
+            <Globe className="w-5" />
+            Add URL Source
           </Button>
-        </div>
-        <div className="bg-[#223342] text-[#B0B7BD] p-6 rounded-lg text-sm">
-          <p>
-            Why use URL scraping? When you scrape a URL, the content from that
-            webpage will be used as context for all your test cases. This is
-            useful when you want to test how LLMs handle specific web content.
-          </p>
-          <br />
-          <p>
-            Is this required? No. URL scraping is completely optional. If you
-            don&apos;t provide a URL, your test cases will use only the prompts
-            you write.
-          </p>
-        </div>
-        {scrapedContent && (
-          <Accordion type="single" collapsible>
-            <AccordionItem value="item-1" className="border-none">
-              <AccordionTrigger>
-                Scraped Content. Click to View!
-              </AccordionTrigger>
-              <AccordionContent className=" h-36 overflow-auto">
-                {scrapedContent}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        )}
-      </DialogContent>
-    </Dialog>
+        </DialogTrigger>
+        <DialogContent className="text-white bg-[#0E2233] p-8 border-none w-2/5">
+          <DialogHeader>
+            <DialogTitle>URL Content Scraper</DialogTitle>
+            <DialogDescription>
+              Add web content as context for your test cases
+            </DialogDescription>
+          </DialogHeader>
+          <h2>URL to Scrape</h2>
+          <div className="w-full h-full flex flex-row gap-2">
+            <Input
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="www.example.com..."
+              className="pl-6 bg-[#223342] text-[#B0B7BD] border-none focus:border-[#36c5b3] focus:ring-2 focus:ring-[#36c5b3] focus-visible:ring-white"
+            />
+            <Button
+              className="bg-[#36c5b3] hover:bg-[#278f81]"
+              onClick={onSubmit}
+            >
+              Scrape URL
+            </Button>
+          </div>
+          <div className="bg-[#223342] text-[#B0B7BD] p-6 rounded-lg text-sm">
+            <p>
+              Why use URL scraping? When you scrape a URL, the content from that
+              webpage will be used as context for all your test cases. This is
+              useful when you want to test how LLMs handle specific web content.
+            </p>
+            <br />
+            <p>
+              Is this required? No. URL scraping is completely optional. If you
+              don&apos;t provide a URL, your test cases will use only the
+              prompts you write.
+            </p>
+          </div>
+          {scrapedContent && (
+            <Accordion type="single" collapsible>
+              <AccordionItem value="item-1" className="border-none">
+                <AccordionTrigger>
+                  Scraped Content. Click to View!
+                </AccordionTrigger>
+                <AccordionContent className=" h-36 overflow-auto">
+                  {scrapedContent}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
