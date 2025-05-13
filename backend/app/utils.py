@@ -11,6 +11,7 @@ from deepeval.test_case import LLMTestCase
 from deepeval.metrics import GEval
 from deepeval.test_case import LLMTestCaseParams
 from deepeval.dataset import EvaluationDataset
+from deepeval.evaluate import CacheConfig, DisplayConfig
 import groq
 
 
@@ -82,9 +83,14 @@ def deepeval_relevancy_score (prompt, actual_output, retrieval_context, expected
 
     result = evaluate(
         test_cases=test_cases_list, 
-        metrics=[context_relevancy_metric, answer_relevancy_metric, bias_metric, toxicity_metric, correctness_metric], 
-        print_results=True, 
-        write_cache=False
+        metrics=[context_relevancy_metric, answer_relevancy_metric, bias_metric, toxicity_metric, correctness_metric],
+        cache_config=CacheConfig(
+            write_cache=False,
+            use_cache=False
+        ),
+        display_config=DisplayConfig(
+            print_results=False
+        )
     )
     # print("result: ", result.test_results)
     contextual_results = []
