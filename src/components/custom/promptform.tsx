@@ -7,6 +7,18 @@ import { Input } from "../ui/input";
 import { useState } from "react";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Badge } from "../ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import UrlScraper from "./UrlScraper";
 
 // interface LLMResponses {
 //     llm_name: string;
@@ -86,13 +98,7 @@ export default function PromptForm({
               <Badge className="h-4 bg-[#162838]">No External Context</Badge>
             </div>
             <div className="flex flex-row mb-0.5">
-              <Button
-                variant="outline"
-                className="bg-[#011628] hover:bg-[#37C5B3] border-[#1E293B] hover:text-white"
-              >
-                <Globe className="w-5" />
-                Add URL Source
-              </Button>
+              <UrlScraper />
             </div>
           </div>
         </div>
