@@ -97,7 +97,7 @@ export default function UrlScraper({
             onClick={() => setDialogOpen(true)}
           >
             <Globe className="w-5" />
-            Add URL Source
+            {scrapedContent ? <p>Change URL Source</p> : <p>Add URL Source</p>}
           </Button>
         </DialogTrigger>
         <DialogContent className="text-white bg-[#0E2233] p-8 border-none w-2/5">
