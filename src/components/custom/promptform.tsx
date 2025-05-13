@@ -5,7 +5,6 @@ import { Badge } from "../ui/badge";
 import UrlScraper from "./UrlScraper";
 import { useState } from "react";
 import clsx from "clsx";
-import { Button } from "../ui/button";
 
 interface CreateEmbeddingProp {
   createEmbedding: (
