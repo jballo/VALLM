@@ -19,22 +19,67 @@ import {
 } from "../ui/accordion";
 import { useState } from "react";
 
-export default function UrlScraper() {
-  const [url, setUrl] = useState<string>("");
-  const [scrapedContent, setScrapedContent] = useState<string>("");
-  const onSubmit = () => {
-    console.log("url: ", url);
-    setTimeout(() => {
-      setScrapedContent("Bunch of text");
-    }, 2000);
+interface CreateEmbeddingProp {
+  createEmbedding: (
+    url: string
+  ) => Promise<{ success: boolean; response?: string; error?: string }>;
+}
+
+interface UrlScraperProps {
+  url: string;
+  setUrl: (url: string) => void;
+  createEmbedding: CreateEmbeddingProp["createEmbedding"];
+  scrapedContent: string;
+  setScrapedContent: (content: string) => void;
+}
+
+export default function UrlScraper({
+  url,
+  setUrl,
+  createEmbedding,
+  scrapedContent,
+  setScrapedContent,
+}: UrlScraperProps) {
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (error) {
+      console.log("Note valid url: Error: ", error);
+      return false;
+    }
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!isValidUrl(url)) return;
+
+    try {
+      const response = await createEmbedding(url);
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to create embedding of url");
+      }
+      console.log("Response: ", response.response);
+      setScrapedContent(response.response || "");
+      setTimeout(() => {
+        setDialogOpen(false);
+      }, 3000);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={() => setDialogOpen(!dialogOpen)}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
           className="bg-[#011628] hover:bg-[#37C5B3] border-[#1E293B] hover:text-white"
+          onClick={() => setDialogOpen(true)}
         >
           <Globe className="w-5" />
           Add URL Source
@@ -82,7 +127,9 @@ export default function UrlScraper() {
               <AccordionTrigger>
                 Scraped Content. Click to View!
               </AccordionTrigger>
-              <AccordionContent>{scrapedContent}</AccordionContent>
+              <AccordionContent className=" h-36 overflow-auto">
+                {scrapedContent}
+              </AccordionContent>
             </AccordionItem>
           </Accordion>
         )}
