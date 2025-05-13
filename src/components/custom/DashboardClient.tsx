@@ -274,7 +274,7 @@ export default function DashboardClient({ createEmbedding }: DashboardProps) {
           setCurrentTestCase={setCurrentTestCase}
         />
         <div className="w-full">
-          <div className="border-b-[1px] border-[#332E5C] p-4">
+          <div className="border-b-[1px] border-[#332E5C]">
             <PromptForm
               createEmbedding={createEmbedding}
               url={url}
