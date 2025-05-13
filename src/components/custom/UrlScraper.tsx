@@ -11,8 +11,24 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Input } from "../ui/input";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../ui/accordion";
+import { useState } from "react";
 
 export default function UrlScraper() {
+  const [url, setUrl] = useState<string>("");
+  const [scrapedContent, setScrapedContent] = useState<string>("");
+  const onSubmit = () => {
+    console.log("url: ", url);
+    setTimeout(() => {
+      setScrapedContent("Bunch of text");
+    }, 2000);
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -35,10 +51,15 @@ export default function UrlScraper() {
         <div className="w-full h-full flex flex-row gap-2">
           <Input
             type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
             placeholder="www.example.com..."
             className="pl-6 bg-[#223342] text-[#B0B7BD] border-none focus:border-[#36c5b3] focus:ring-2 focus:ring-[#36c5b3] focus-visible:ring-white"
           />
-          <Button className="bg-[#36c5b3] hover:bg-[#278f81]">
+          <Button
+            className="bg-[#36c5b3] hover:bg-[#278f81]"
+            onClick={onSubmit}
+          >
             Scrape URL
           </Button>
         </div>
@@ -55,6 +76,16 @@ export default function UrlScraper() {
             you write.
           </p>
         </div>
+        {scrapedContent && (
+          <Accordion type="single" collapsible>
+            <AccordionItem value="item-1" className="border-none">
+              <AccordionTrigger>
+                Scraped Content. Click to View!
+              </AccordionTrigger>
+              <AccordionContent>{scrapedContent}</AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        )}
       </DialogContent>
     </Dialog>
   );
