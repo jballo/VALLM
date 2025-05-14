@@ -1,7 +1,12 @@
 "use client";
 
-import { Globe } from "lucide-react";
-import { Button } from "../ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/atoms/accordion";
+import { Button } from "@/atoms/button";
 import {
   Dialog,
   DialogContent,
@@ -9,14 +14,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { Input } from "../ui/input";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "../ui/accordion";
+} from "@/atoms/dialog";
+import { Input } from "@/atoms/input";
+import { Globe } from "lucide-react";
 import { useState } from "react";
 
 interface CreateEmbeddingProp {

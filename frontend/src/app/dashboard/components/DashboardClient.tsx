@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header from "./header";
+import { v4 as uuidv4 } from "uuid";
+import { TriangleAlert, X } from "lucide-react";
+import Header from "@/components/header";
+import { Alert, AlertDescription } from "@/atoms/alert";
+import { Button } from "@/atoms/button";
+import Sidebar from "./sidebar";
 import PromptForm from "./promptform";
 import LLMResponseComparison from "./llm-response-comparison";
-import Sidebar from "./sidebar";
-import { v4 as uuidv4 } from "uuid";
-import { Alert, AlertDescription } from "../ui/alert";
-import { Button } from "../ui/button";
-import { TriangleAlert, X } from "lucide-react";
 
 interface LLMResponse {
   llm_name: string;
