@@ -1,13 +1,11 @@
-"use server";
-
 import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export async function createEmbedding(url: string) {
-  console.log("Url in actions: ", url);
-
+export async function POST(req: Request) {
   try {
-    // If there is no signed in user, this will return a 404 error
     await auth.protect();
+    const body = await req.json();
+    const { url } = body;
 
     const scrape_url_endpoint = new URL(
       process.env.SCRAPE_ENDPOINT || "http://127.0.0.1:8000/api/v1/scrape"
@@ -48,27 +46,21 @@ export async function createEmbedding(url: string) {
     });
 
     if (!embed_response.ok) {
-      const errorText = await embed_response.text();
-      console.error("API Response: ", errorText);
-      throw new Error(
-        `HTTP error! status: ${embed_response.status}, message: ${errorText}`
-      );
+      throw new Error(`HTTP error! status: ${embed_response.status}`);
     }
 
     const embed_result = await embed_response.json();
-
     console.log("Embed result: ", embed_result);
 
-    return {
-      success: true,
-      response: scrape_result.content,
-    };
+    return NextResponse.json(
+      { content: scrape_result.content },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error("Error: ", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error ? error.message : "Failed to create embedding",
-    };
+    console.log("Error: ", error);
+    return NextResponse.json(
+      { error: "Failed to scrape and/or embed" },
+      { status: 500 }
+    );
   }
 }

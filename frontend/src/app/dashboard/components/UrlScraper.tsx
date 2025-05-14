@@ -19,16 +19,9 @@ import { Input } from "@/atoms/input";
 import { Globe } from "lucide-react";
 import { useState } from "react";
 
-interface CreateEmbeddingProp {
-  createEmbedding: (
-    url: string
-  ) => Promise<{ success: boolean; response?: string; error?: string }>;
-}
-
 interface UrlScraperProps {
   url: string;
   setUrl: (url: string) => void;
-  createEmbedding: CreateEmbeddingProp["createEmbedding"];
   scrapedContent: string;
   setScrapedContent: (content: string) => void;
 }
@@ -36,7 +29,6 @@ interface UrlScraperProps {
 export default function UrlScraper({
   url,
   setUrl,
-  createEmbedding,
   scrapedContent,
   setScrapedContent,
 }: UrlScraperProps) {
@@ -58,13 +50,22 @@ export default function UrlScraper({
     if (!isValidUrl(url)) return;
 
     try {
-      const response = await createEmbedding(url);
+      // const response = await createEmbedding(url);
+      const response = await fetch(`/api/embeddings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url }),
+      });
 
-      if (!response.success) {
-        throw new Error(response.error || "Failed to create embedding of url");
+      if (!response.ok) {
+        throw new Error("Failed to create embedding of url");
       }
-      console.log("Response: ", response.response);
-      setScrapedContent(response.response || "");
+      const result = await response.json();
+
+      console.log("Content: ", result.content);
+      setScrapedContent(result.content || "");
       setTimeout(() => {
         setDialogOpen(false);
       }, 3000);

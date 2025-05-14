@@ -1,13 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// export const maxDuration = 5;
-
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
-    // If there is no signed in user, this will return a 404 error
     await auth.protect();
 
     const body = await request.json();

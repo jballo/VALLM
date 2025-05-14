@@ -6,23 +6,12 @@ import clsx from "clsx";
 import { Badge } from "@/atoms/badge";
 import UrlScraper from "./UrlScraper";
 
-interface CreateEmbeddingProp {
-  createEmbedding: (
-    url: string
-  ) => Promise<{ success: boolean; response?: string; error?: string }>;
-}
-
 interface PromptFormProps {
-  createEmbedding: CreateEmbeddingProp["createEmbedding"];
   url: string;
   setUrl: (url: string) => void;
 }
 
-export default function PromptForm({
-  createEmbedding,
-  url,
-  setUrl,
-}: PromptFormProps) {
+export default function PromptForm({ url, setUrl }: PromptFormProps) {
   const [scrapedContent, setScrapedContent] = useState<string>("");
 
   return (
@@ -45,7 +34,6 @@ export default function PromptForm({
               <UrlScraper
                 url={url}
                 setUrl={setUrl}
-                createEmbedding={createEmbedding}
                 scrapedContent={scrapedContent}
                 setScrapedContent={setScrapedContent}
               />
