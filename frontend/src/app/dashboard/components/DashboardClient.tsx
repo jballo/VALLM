@@ -39,17 +39,7 @@ interface TestCase {
   models: ModelChoice[];
 }
 
-interface CreateEmbeddingProp {
-  createEmbedding: (
-    url: string
-  ) => Promise<{ success: boolean; response?: string; error?: string }>;
-}
-
-interface DashboardProps {
-  createEmbedding: CreateEmbeddingProp["createEmbedding"];
-}
-
-export default function DashboardClient({ createEmbedding }: DashboardProps) {
+export default function DashboardClient() {
   const [url, setUrl] = useState<string>("");
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [currentTestCase, setCurrentTestCase] = useState<string>("");
@@ -147,7 +137,7 @@ export default function DashboardClient({ createEmbedding }: DashboardProps) {
             });
             console.log("models: ", models);
 
-            const response = await fetch(`/api/create-response`, {
+            const response = await fetch(`/api/responses`, {
               method: "POST",
               headers: {
                 "Content-Type": "text/event-stream",
@@ -275,11 +265,7 @@ export default function DashboardClient({ createEmbedding }: DashboardProps) {
         />
         <div className="w-full">
           <div className="border-b-[1px] border-[#332E5C]">
-            <PromptForm
-              createEmbedding={createEmbedding}
-              url={url}
-              setUrl={setUrl}
-            />
+            <PromptForm url={url} setUrl={setUrl} />
           </div>
           {urlAlert && (
             <div className="flex flex-row justify-center w-full px-4 pt-4">
