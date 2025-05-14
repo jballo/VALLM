@@ -3,7 +3,7 @@
 import { Info } from "lucide-react";
 import { useState } from "react";
 import clsx from "clsx";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/atoms/badge";
 import UrlScraper from "./UrlScraper";
 
 interface CreateEmbeddingProp {

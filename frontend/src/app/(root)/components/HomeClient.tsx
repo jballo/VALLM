@@ -16,8 +16,8 @@ import Image from "next/image";
 // import * as React from "react";
 import type { SVGProps } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/custom/header";
-import { Button } from "@/components/ui/button";
+import Header from "@/components/header";
+import { Button } from "@/atoms/button";
 const OpenAI = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

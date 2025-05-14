@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/atoms/badge";
+import { Button } from "@/atoms/button";
 import {
   Command,
   CommandEmpty,
@@ -10,15 +10,11 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command";
-import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
-import { Toggle } from "@/components/ui/toggle";
+} from "@/atoms/command";
+import { Input } from "@/atoms/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/atoms/popover";
+import { Textarea } from "@/atoms/textarea";
+import { Toggle } from "@/atoms/toggle";
 import { Check, ChevronDown } from "lucide-react";
 
 interface ModelChoice {

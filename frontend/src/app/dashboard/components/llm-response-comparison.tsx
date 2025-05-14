@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { Stars, Zap } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/atoms/tabs";
+import { Button } from "@/atoms/button";
 import TestCaseInput from "./test-case-input";
 
 interface ModelChoice {

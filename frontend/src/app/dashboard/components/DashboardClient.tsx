@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { TriangleAlert, X } from "lucide-react";
-import Header from "@/components/custom/header";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import Header from "@/components/header";
+import { Alert, AlertDescription } from "@/atoms/alert";
+import { Button } from "@/atoms/button";
 import Sidebar from "./sidebar";
 import PromptForm from "./promptform";
 import LLMResponseComparison from "./llm-response-comparison";

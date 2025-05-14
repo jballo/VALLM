@@ -14,16 +14,16 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
-import { TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+} from "@/atoms/chart";
+import { TabsContent } from "@/atoms/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/atoms/card";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/atoms/accordion";
+import { Skeleton } from "@/atoms/skeleton";
 
 interface LLMResponses {
   llm_name: string;
