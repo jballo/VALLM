@@ -1,10 +1,10 @@
 "use client";
 
 import { Info } from "lucide-react";
-import { Badge } from "../ui/badge";
-import UrlScraper from "./UrlScraper";
 import { useState } from "react";
 import clsx from "clsx";
+import { Badge } from "@/components/ui/badge";
+import UrlScraper from "./UrlScraper";
 
 interface CreateEmbeddingProp {
   createEmbedding: (
