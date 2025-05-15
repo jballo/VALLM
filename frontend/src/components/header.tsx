@@ -43,7 +43,11 @@ export default function Header() {
         >
           <Home /> Home
         </Button>
-        <Button variant="link" className="flex flex-row gap-1.5 text-white">
+        <Button
+          variant="link"
+          className="flex flex-row gap-1.5 text-white"
+          onClick={() => router.push("/pricing")}
+        >
           <LayoutDashboard /> Features
         </Button>
         <Button
