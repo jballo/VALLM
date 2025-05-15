@@ -262,6 +262,7 @@ export default function DashboardPage() {
           addTestCase={addTestCase}
           currentTestCase={currentTestCase}
           setCurrentTestCase={setCurrentTestCase}
+          setTestCases={setTestCases}
         />
         <div className="w-full">
           <div className="border-b-[1px] border-[#332E5C]">
