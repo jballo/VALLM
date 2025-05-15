@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, SeparatorHorizontal, SidebarIcon, Upload } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/atoms/button";
 import {
@@ -11,11 +11,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/atoms/dialog";
+import Uploader from "./Uploader";
+import { parse } from "papaparse";
+import { v4 as uuidv4 } from "uuid";
+
+interface ModelChoice {
+  model: string;
+  selected: boolean;
+}
 
 interface TestCase {
   id: string;
   prompt: string;
   expectedOutput: string;
+  models: ModelChoice[];
 }
 
 interface SidebarProps {
@@ -23,6 +32,7 @@ interface SidebarProps {
   addTestCase: () => void;
   currentTestCase: string;
   setCurrentTestCase: (testId: string) => void;
+  setTestCases: (tests: TestCase[]) => void;
 }
 
 export default function Sidebar({
@@ -30,12 +40,75 @@ export default function Sidebar({
   addTestCase,
   currentTestCase,
   setCurrentTestCase,
+  setTestCases,
 }: SidebarProps) {
   const [collapsed, setCollapsed] = useState<boolean>(false);
+  // const [csvFile, setCsvFile] = useState<File | null>(null);
+  // const fileInputRef = useRef
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
   };
+
+  const handleFileSelected = useCallback((file: File | null) => {
+    // setFile();
+    if (file) {
+      console.log(file);
+      parse(file, {
+        complete: (result) => {
+          console.log("result: ", result.data);
+
+          const res = result.data as string[][];
+
+          const newTestCases: TestCase[] = [];
+
+          res.forEach((test: string[], index) => {
+            if (index !== 0) {
+              const modelList = test[3].split(";");
+              console.log("modelList: ", modelList);
+              const choices: ModelChoice[] = [
+                {
+                  model: "llama-3.3-70b-versatile",
+                  selected: false,
+                },
+                {
+                  model: "llama-3.1-8b-instant",
+                  selected: false,
+                },
+                {
+                  model: "mistral-saba-24b",
+                  selected: false,
+                },
+                {
+                  model: "gpt-4o-mini",
+                  selected: false,
+                },
+              ];
+
+              const selectedChoices = choices.map((model) => ({
+                ...model,
+                selected: modelList.includes(model.model),
+              }));
+              console.log("SelectedChoices: ", selectedChoices);
+
+              const newTest: TestCase = {
+                id: uuidv4(),
+                prompt: test[1],
+                expectedOutput: test[2],
+                models: selectedChoices,
+              };
+              newTestCases.push(newTest);
+            }
+          });
+
+          console.log("newTestCases: ", newTestCases);
+
+          setTestCases(newTestCases);
+          setCurrentTestCase(newTestCases.length > 0 ? newTestCases[0].id : "");
+        },
+      });
+    }
+  }, []);
 
   return (
     <div
@@ -108,12 +181,7 @@ export default function Sidebar({
               <DialogTitle className="text-xl">Import Test Cases</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col items-center gap-4 w-full h-full">
-              <div className="flex flex-col w-5/6 h-2/6 justify-center items-center border-[1px] rounded-lg border-dashed border-[#3C2F66] p-4 cursor-pointer gap-2">
-                <Upload className="cursor-pointer" />
-                <p className="cursor-pointer">
-                  Click to Upload or Drag and Drop
-                </p>
-              </div>
+              <Uploader onFileSelected={handleFileSelected} />
               <div className="flex flex-row w-5/6 h-1/6 justify-end gap-2">
                 <Button className="bg-[#011627] hover:bg-[#36c5b3]">
                   Cancel
