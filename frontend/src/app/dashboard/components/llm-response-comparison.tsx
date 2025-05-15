@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import TestCaseInput from "./test-case-input";
-// import Results from "./results";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Stars, Zap } from "lucide-react";
-import { Button } from "../ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/atoms/tabs";
+import { Button } from "@/atoms/button";
+import TestCaseInput from "./test-case-input";
 
 interface ModelChoice {
   model: string;

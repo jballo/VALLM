@@ -1,12 +1,7 @@
 "use client";
 
-// import React, { useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
-
-// import { v4 as uuidv4 } from "uuid";
-import { Input } from "../ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Badge } from "@/atoms/badge";
+import { Button } from "@/atoms/button";
 import {
   Command,
   CommandEmpty,
@@ -15,10 +10,12 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "../ui/command";
-import { Toggle } from "../ui/toggle";
+} from "@/atoms/command";
+import { Input } from "@/atoms/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/atoms/popover";
+import { Textarea } from "@/atoms/textarea";
+import { Toggle } from "@/atoms/toggle";
 import { Check, ChevronDown } from "lucide-react";
-import { Badge } from "../ui/badge";
 
 interface ModelChoice {
   model: string;

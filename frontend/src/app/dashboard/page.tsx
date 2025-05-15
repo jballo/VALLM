@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header from "./header";
-import PromptForm from "./promptform";
-import LLMResponseComparison from "./llm-response-comparison";
-import Sidebar from "./sidebar";
 import { v4 as uuidv4 } from "uuid";
-import { Alert, AlertDescription } from "../ui/alert";
-import { Button } from "../ui/button";
 import { TriangleAlert, X } from "lucide-react";
+import Header from "@/components/header";
+import { Alert, AlertDescription } from "@/atoms/alert";
+import { Button } from "@/atoms/button";
+import Sidebar from "./components/sidebar";
+import PromptForm from "./components/promptform";
+import LLMResponseComparison from "./components/llm-response-comparison";
 
 interface LLMResponse {
   llm_name: string;
@@ -39,17 +39,7 @@ interface TestCase {
   models: ModelChoice[];
 }
 
-interface CreateEmbeddingProp {
-  createEmbedding: (
-    url: string
-  ) => Promise<{ success: boolean; response?: string; error?: string }>;
-}
-
-interface DashboardProps {
-  createEmbedding: CreateEmbeddingProp["createEmbedding"];
-}
-
-export default function DashboardClient({ createEmbedding }: DashboardProps) {
+export default function DashboardPage() {
   const [url, setUrl] = useState<string>("");
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [currentTestCase, setCurrentTestCase] = useState<string>("");
@@ -147,7 +137,7 @@ export default function DashboardClient({ createEmbedding }: DashboardProps) {
             });
             console.log("models: ", models);
 
-            const response = await fetch(`/api/create-response`, {
+            const response = await fetch(`/api/responses`, {
               method: "POST",
               headers: {
                 "Content-Type": "text/event-stream",
@@ -272,14 +262,11 @@ export default function DashboardClient({ createEmbedding }: DashboardProps) {
           addTestCase={addTestCase}
           currentTestCase={currentTestCase}
           setCurrentTestCase={setCurrentTestCase}
+          setTestCases={setTestCases}
         />
         <div className="w-full">
           <div className="border-b-[1px] border-[#332E5C]">
-            <PromptForm
-              createEmbedding={createEmbedding}
-              url={url}
-              setUrl={setUrl}
-            />
+            <PromptForm url={url} setUrl={setUrl} />
           </div>
           {urlAlert && (
             <div className="flex flex-row justify-center w-full px-4 pt-4">
