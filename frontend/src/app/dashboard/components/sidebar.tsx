@@ -43,6 +43,7 @@ export default function Sidebar({
   setTestCases,
 }: SidebarProps) {
   const [collapsed, setCollapsed] = useState<boolean>(false);
+  const [uploaderDialogOpen, setUploaderDialogOpen] = useState<boolean>(false);
   // const [csvFile, setCsvFile] = useState<File | null>(null);
   // const fileInputRef = useRef
 
@@ -105,6 +106,7 @@ export default function Sidebar({
 
           setTestCases(newTestCases);
           setCurrentTestCase(newTestCases.length > 0 ? newTestCases[0].id : "");
+          setUploaderDialogOpen(false);
         },
       });
     }
@@ -170,7 +172,7 @@ export default function Sidebar({
         >
           {!collapsed ? "Add Test Case" : <Plus />}
         </Button>
-        <Dialog>
+        <Dialog open={uploaderDialogOpen} onOpenChange={setUploaderDialogOpen}>
           <DialogTrigger asChild>
             <Button className="w-[10px] bg-[#011627] hover:bg-[#36c5b3]">
               <Upload />
@@ -180,16 +182,10 @@ export default function Sidebar({
             <DialogHeader className="h-10">
               <DialogTitle className="text-xl">Import Test Cases</DialogTitle>
             </DialogHeader>
-            <div className="flex flex-col items-center gap-4 w-full h-full">
+            <div className="flex flex-col items-center gap-24 w-full h-full">
+              {/* File Uploader */}
               <Uploader onFileSelected={handleFileSelected} />
-              <div className="flex flex-row w-5/6 h-1/6 justify-end gap-2">
-                <Button className="bg-[#011627] hover:bg-[#36c5b3]">
-                  Cancel
-                </Button>
-                <Button className="bg-[#36c5b3] hover:bg-[#278f81]">
-                  Import Test Cases
-                </Button>
-              </div>
+              {/* Example Table */}
               <div className="flex flex-col justify-center items-center w-5/6 gap-4 h-2/6">
                 <div className="w-full text-start">
                   <p className="text-xs">Expected CSV format</p>
