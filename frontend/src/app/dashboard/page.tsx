@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { TriangleAlert, X } from "lucide-react";
-import Header from "@/components/header";
+// import Header from "@/components/header";
 import { Alert, AlertDescription } from "@/atoms/alert";
 import { Button } from "@/atoms/button";
 import Sidebar from "./components/sidebar";
@@ -255,7 +255,7 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full min-h-screen p-12 flex flex-col gap-6 bg-[#011627]">
-      <Header />
+      {/* <Header /> */}
       <div className="flex flex-row w-full h-full border-[1px] border-[#332E5C] rounded-xl">
         <Sidebar
           testCases={testCases}
