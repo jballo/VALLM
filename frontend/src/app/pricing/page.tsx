@@ -1,6 +1,6 @@
 "use client";
 
-import Header from "@/components/header";
+// import Header from "@/components/header";
 import FreeCard from "./components/free-card";
 import HobbyCard from "./components/hobby-card";
 import CustomCard from "./components/custom-card";
@@ -8,7 +8,7 @@ import CustomCard from "./components/custom-card";
 export default function PricingPage() {
   return (
     <div className="w-full min-h-screen p-12 flex flex-col gap-14 bg-[#011627]">
-      <Header />
+      {/* <Header /> */}
       <div className="flex flex-col w-full text-center  text-white gap-5">
         <h1 className="text-5xl">Flexible Pricing</h1>
         <p>At VALLM, we appreciate transparency</p>

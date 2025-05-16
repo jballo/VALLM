@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-
+import Header from "@/components/header";
 
 export const metadata: Metadata = {
   title: "VaLLM",
@@ -16,10 +16,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-      >
+      <body>
         <ClerkProvider>
-          {children}
+          <div className="w-full min-h-screen bg-[#011627] text-white p-6">
+            <Header />
+            {children}
+          </div>
         </ClerkProvider>
       </body>
     </html>
