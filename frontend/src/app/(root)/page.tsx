@@ -16,7 +16,7 @@ import Image from "next/image";
 // import * as React from "react";
 import type { SVGProps } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/header";
+// import Header from "@/components/header";
 import { Button } from "@/atoms/button";
 const OpenAI = (props: SVGProps<SVGSVGElement>) => (
   <svg
@@ -143,9 +143,6 @@ export default function HomePage() {
 
   return (
     <div className="w-full min-h-screen flex flex-col gap-12 bg-[#011627] text-white">
-      <div className="m-6">
-        <Header />
-      </div>
       <div className="flex flex-col w-full h-full gap-4">
         {/* Title and Basic Info */}
         <div className="flex flex-col items-center gap-10 m-6">
