@@ -12,5 +12,6 @@ class Config:
     BRIGHT_DATA_AUTH = os.getenv('BRIGHT_DATA_AUTH')
     SBR_SW_CDP = f'https://{BRIGHT_DATA_AUTH}@brd.superproxy.io:9222'
     CLERK_WEBHOOK_KEY=os.getenv('CLERK_WEBHOOK_KEY')
+    FIRECRAWL_KEY=os.getenv('FIRECRAWL_KEY')
     
 
