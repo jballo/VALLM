@@ -73,6 +73,10 @@ export default function DashboardPage() {
             model: "gpt-4o-mini",
             selected: false,
           },
+          {
+            model: "gemini-2.0-flash-001",
+            selected: false,
+          }
         ],
       },
     ]);
