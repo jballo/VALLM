@@ -87,6 +87,10 @@ export default function Sidebar({
                 {
                   model: "gemini-2.0-flash-001",
                   selected: false,
+                },
+                {
+                  model: "deepseek/deepseek-chat-v3-0324",
+                  selected: false,
                 }
               ];
 
