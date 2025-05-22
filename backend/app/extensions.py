@@ -23,7 +23,8 @@ groq_client = Groq(
 )
 
 openai_client = OpenAI(
-    api_key=Config.OPENAI_API_KEY
+    api_key=Config.OPENROUTER_KEY,
+    base_url="https://openrouter.ai/api/v1",
 )
 
 # embedding_client = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
