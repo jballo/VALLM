@@ -1,3 +1,7 @@
+import os
+# os.environ['DEEPEVAL_TELEMETRY_OPTOUT'] = 'YES'
+# os.environ['DEEPEVAL_TELEMETRY_ENABLED'] = 'False'
+
 import json
 from flask import make_response, jsonify
 from app.extensions import groq_client, openai_client
@@ -13,6 +17,7 @@ from deepeval.test_case import LLMTestCaseParams
 from deepeval.dataset import EvaluationDataset
 from deepeval.evaluate import CacheConfig, DisplayConfig
 import groq
+from deepeval.models import GeminiModel
 
 
 
@@ -38,24 +43,29 @@ def verify_auth_header(header_api_key):
 
 
 def deepeval_relevancy_score (prompt, actual_output, retrieval_context, expected_output):
+    model = GeminiModel(
+        model_name="gemini-2.0-flash",
+        api_key=Config.GEMINI_KEY,
+    )
+
     context_relevancy_metric = ContextualRelevancyMetric(
         threshold=0.7,
-        model="gpt-4o-mini",
+        model=model,
         # include_reason=True
     )
     answer_relevancy_metric = AnswerRelevancyMetric(
         threshold=0.7,
-        model="gpt-4o-mini",
+        model=model,
         # include_reason=True
     )
     bias_metric = BiasMetric (
         threshold=0.5,
-        model="gpt-4o-mini"
+        model=model
     )
 
     toxicity_metric = ToxicityMetric(
         threshold=0.5,
-        model="gpt-4o-mini"
+        model=model
     )
 
     correctness_metric = GEval(
@@ -68,7 +78,7 @@ def deepeval_relevancy_score (prompt, actual_output, retrieval_context, expected
             "Vague language, or contradicting OPINIONS, are OK"
         ],
         evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT, LLMTestCaseParams.EXPECTED_OUTPUT],
-        model="gpt-4o-mini"
+        model=model
     )
 
     test_case = LLMTestCase(

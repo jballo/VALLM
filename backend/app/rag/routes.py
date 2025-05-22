@@ -8,6 +8,7 @@ from langchain.schema import Document
 from langchain_pinecone import PineconeVectorStore
 import os
 from app.config import Config
+from langchain_huggingface import HuggingFaceEmbeddings
 
 pinecone_api_key = Config.PINECONE_API_KEY
 
@@ -26,7 +27,7 @@ def generate_embeddings():
     print("Content: ", content)
     print("\n\n\nContent json: ", content_json)
 
-    content_sentences = content.split(". ")
+    content_sentences = content.split("\n\n")
 
     print("Sentences: ")
     for sent in content_sentences:
@@ -47,9 +48,10 @@ def generate_embeddings():
         )
         documents.append(doc)
 
+    model_name = "all-MiniLM-L6-v2"  # You can choose a different model
     vectorstore = PineconeVectorStore.from_documents(
         documents=documents,
-        embedding=OpenAIEmbeddings(model="text-embedding-3-small"),
+        embedding=HuggingFaceEmbeddings(model_name=model_name),
         index_name="llmeval",
         namespace=url
     )
@@ -75,7 +77,7 @@ def rag_retrieve():
     print("Prompt: ", prompt)
     print("Url: ", url)
 
-    raw_query_embedding = embedding_client.embed_query(prompt)
+    raw_query_embedding = embedding_client.encode(prompt).tolist()
 
     # Initalize Pinecone
     pc = Pinecone(api_key=pinecone_api_key)

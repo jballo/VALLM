@@ -1,6 +1,7 @@
 from groq import Groq
 from openai import OpenAI
-from langchain_openai import OpenAIEmbeddings
+from sentence_transformers import SentenceTransformer
+from firecrawl import FirecrawlApp
 from app.config import Config
 
 
@@ -13,8 +14,12 @@ openai_client = OpenAI(
     api_key=Config.OPENAI_API_KEY
 )
 
-embedding_client = OpenAIEmbeddings(
-    api_key=Config.OPENAI_API_KEY,
-    model="text-embedding-3-small"
-)
+embedding_client = SentenceTransformer('all-MiniLM-L6-v2')
+# embedding_client = SentenceTransformer("jinaai/jina-embeddings-v2-base-en", trust_remote_code=True)
+# embedding_client.max_seq_length = 768
+# embedding_client = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
 
+
+scraper = FirecrawlApp(
+    api_key=Config.FIRECRAWL_KEY
+)
