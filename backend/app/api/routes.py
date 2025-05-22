@@ -36,19 +36,28 @@ def llm_response():
             print("model: ", model)
             models_list.append((model, prompt, contxt, expected_output))
 
+        # def generate():
+        #     with Pool(4) as p:
+        #         results = p.map(process_llm_request, models_list)
+        #         for result in results:
+        #             # print(result)
+        #             print("----------------------------")
+        #             pprint.pp(result)
+        #             print("----------------------------")
+        #             yield f"{json.dumps(result)}\n"
+        #         # for result in results:
+        #         #     with lock:
+        #         #         pprint.pp(result)
+        #         #         yield f"data: {json.dumps(result)}\n\n"
+
         def generate():
-            with Pool(4) as p:
-                results = p.map(process_llm_request, models_list)
-                for result in results:
-                    # print(result)
-                    print("----------------------------")
-                    pprint.pp(result)
-                    print("----------------------------")
-                    yield f"{json.dumps(result)}\n"
-                # for result in results:
-                #     with lock:
-                #         pprint.pp(result)
-                #         yield f"data: {json.dumps(result)}\n\n"
+            # Process each model sequentially instead of using a Pool
+            for args in models_list:
+                result = process_llm_request(args)
+                print("----------------------------")
+                pprint.pp(result)
+                print("----------------------------")
+                yield f"{json.dumps(result)}\n"
 
 
         return Response(
