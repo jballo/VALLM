@@ -18,6 +18,7 @@ import {
 import { Input } from "@/atoms/input";
 import { Globe } from "lucide-react";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 interface UrlScraperProps {
   url: string;
@@ -138,13 +139,13 @@ export default function UrlScraper({
             </p>
           </div>
           {scrapedContent && (
-            <Accordion type="single" collapsible>
+            <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1" className="border-none">
                 <AccordionTrigger>
                   Scraped Content. Click to View!
                 </AccordionTrigger>
-                <AccordionContent className=" h-36 overflow-auto">
-                  {scrapedContent}
+                <AccordionContent className=" h-36 overflow-auto w-full">
+                  <ReactMarkdown>{scrapedContent}</ReactMarkdown>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
