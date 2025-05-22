@@ -8,7 +8,6 @@ from langchain.schema import Document
 from langchain_pinecone import PineconeVectorStore
 import os
 from app.config import Config
-from sentence_transformers import SentenceTransformer
 from langchain_huggingface import HuggingFaceEmbeddings
 
 pinecone_api_key = Config.PINECONE_API_KEY
