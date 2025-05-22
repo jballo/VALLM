@@ -23,21 +23,27 @@ def generate_embeddings():
         return auth_check
     
     url = request.args.get('url')
-    content = request.json
-    content_json = jsonify(content)
-    print("Content: ", content)
-    print("\n\n\nContent json: ", content_json)
+    body = request.json
+    print(f"--------------------------------\n\n\n")
+    print(f"body: {body}")
+    print(f"--------------------------------\n\n\n")
 
-    content_sentences = content.split("\n\n")
+    # scraped content is expected to be a string of markdown
+    scraped_content = body["content"]
+    print(f"scraped_content: {scraped_content}")
+    chunks = [sent.strip() for sent in scraped_content.split("\n\n") if sent.strip()]
 
-    print("Sentences: ")
-    for sent in content_sentences:
-        print(sent, "\n")
+    print(f"--------------------------------\n\n\n")
+    print(f"chunks: {chunks}")
+
+    # print("chunks: ")
+    # for sent in chunks:
+    #     print(sent, "\n")
     pc = Pinecone(api_key=pinecone_api_key,)
     pinecone_index = pc.Index("llmeval")
     
     documents = []
-    for sent_index, sent in enumerate(content_sentences):
+    for sent_index, sent in enumerate(chunks):
         source = f"""{url} sentence #: {sent_index}"""
         doc = Document(
             page_content=sent,
