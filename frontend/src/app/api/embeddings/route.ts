@@ -42,7 +42,9 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
         "X-API-Key": process.env.API_KEY || "",
       },
-      body: JSON.stringify(scrape_result.content),
+      body: JSON.stringify({
+        content: scrape_result.content
+      }),
     });
 
     if (!embed_response.ok) {
