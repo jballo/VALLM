@@ -45,8 +45,6 @@ jsonpatch==1.33
 jsonpointer==3.0.0
 langchain==0.3.25
 langchain-core==0.3.60
-langchain-huggingface==0.2.0
-langchain-openai==0.3.17
 langchain-pinecone==0.2.6
 langchain-tests==0.3.19
 langchain-text-splitters==0.3.8
@@ -104,7 +102,6 @@ rsa==4.9.1
 safetensors==0.5.3
 scikit-learn==1.6.1
 scipy==1.15.3
-sentence-transformers==4.1.0
 sentry-sdk==2.29.1
 setuptools==80.8.0
 shellingham==1.5.4

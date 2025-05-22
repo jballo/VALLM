@@ -1,6 +1,5 @@
 from groq import Groq
 from openai import OpenAI
-from sentence_transformers import SentenceTransformer
 from firecrawl import FirecrawlApp
 from app.config import Config
 import voyageai
