@@ -407,6 +407,58 @@ def generate_response(model, prompt, context, expected_output):
             toxicity_success_score = gpt_relevancy_scores["toxicity_success_rate"]
             correctness_success_score = gpt_relevancy_scores["correctness_success_rate"]
 
+        elif model == "gemini-2.0-flash-001":
+            gemini_completion = openai_client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                model="google/gemini-2.0-flash-001",
+            )
+            
+            gemini_respnse = gemini_completion.choices[0].message.content
+
+            gemini_relevancy_scores = deepeval_relevancy_score(prompt, gemini_respnse, context, expected_output)
+            
+            model_response = gemini_respnse
+            contextual_relevancy_score = gemini_relevancy_scores["contextual_success_rate"]
+            answer_relevancy_score = gemini_relevancy_scores["answer_success_rate"]
+            bias_success_score = gemini_relevancy_scores["bias_success_rate"]
+            toxicity_success_score = gemini_relevancy_scores["toxicity_success_rate"]
+            correctness_success_score = gemini_relevancy_scores["correctness_success_rate"]
+
+        elif model == "deepseek/deepseek-chat-v3-0324":
+            deepseek_completion = openai_client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                model="deepseek/deepseek-chat-v3-0324",
+            )
+            
+            deepseek_respnse = deepseek_completion.choices[0].message.content
+
+            deepseek_relevancy_scores = deepeval_relevancy_score(prompt, deepseek_respnse, context, expected_output)
+            
+            model_response = deepseek_respnse
+            contextual_relevancy_score = deepseek_relevancy_scores["contextual_success_rate"]
+            answer_relevancy_score = deepseek_relevancy_scores["answer_success_rate"]
+            bias_success_score = deepseek_relevancy_scores["bias_success_rate"]
+            toxicity_success_score = deepseek_relevancy_scores["toxicity_success_rate"]
+            correctness_success_score = deepseek_relevancy_scores["correctness_success_rate"]
+
         else:
             model_name = ""
             model_response = "No response. Model unknown"
