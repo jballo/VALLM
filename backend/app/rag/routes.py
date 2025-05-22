@@ -2,13 +2,11 @@ from flask import jsonify, request, make_response
 from app.rag import bp
 from app.utils import verify_auth_header
 from app.extensions import embedding_client
-from langchain_openai import OpenAIEmbeddings
 from pinecone import Pinecone
 from langchain.schema import Document
 from langchain_pinecone import PineconeVectorStore
 import os
 from app.config import Config
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_voyageai import VoyageAIEmbeddings
 
 pinecone_api_key = Config.PINECONE_API_KEY
