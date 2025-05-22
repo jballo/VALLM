@@ -5,6 +5,17 @@ from firecrawl import FirecrawlApp
 from app.config import Config
 
 
+# Add these imports for thread control
+import os
+import torch
+
+# Set OpenMP thread limits
+os.environ["OMP_NUM_THREADS"] = "1"  
+os.environ["MKL_NUM_THREADS"] = "1"
+# Limit PyTorch thread usage
+torch.set_num_threads(1)
+torch.set_num_interop_threads(1)
+
 
 groq_client = Groq(
     api_key=Config.GROQ_API_KEY
