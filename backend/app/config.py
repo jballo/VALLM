@@ -15,5 +15,6 @@ class Config:
     FIRECRAWL_KEY=os.getenv('FIRECRAWL_KEY')
     GEMINI_KEY=os.getenv('GEMINI_KEY')
     VOYAGE_AI_KEY= os.getenv('VOYAGE_AI_KEY')
+    OPENROUTER_KEY = os.getenv('OPENROUTER_KEY')
     
 
