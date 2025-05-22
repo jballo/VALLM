@@ -14,5 +14,6 @@ class Config:
     CLERK_WEBHOOK_KEY=os.getenv('CLERK_WEBHOOK_KEY')
     FIRECRAWL_KEY=os.getenv('FIRECRAWL_KEY')
     GEMINI_KEY=os.getenv('GEMINI_KEY')
+    VOYAGE_AI_KEY= os.getenv('VOYAGE_AI_KEY')
     
 

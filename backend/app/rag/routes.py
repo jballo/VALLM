@@ -9,6 +9,7 @@ from langchain_pinecone import PineconeVectorStore
 import os
 from app.config import Config
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_voyageai import VoyageAIEmbeddings
 
 pinecone_api_key = Config.PINECONE_API_KEY
 
@@ -48,10 +49,10 @@ def generate_embeddings():
         )
         documents.append(doc)
 
-    model_name = "all-MiniLM-L6-v2"  # You can choose a different model
+    model_name = "voyage-3-lite"  # You can choose a different model
     vectorstore = PineconeVectorStore.from_documents(
         documents=documents,
-        embedding=HuggingFaceEmbeddings(model_name=model_name),
+        embedding=VoyageAIEmbeddings(model=model_name, api_key=Config.VOYAGE_AI_KEY),
         index_name="llmeval",
         namespace=url
     )
@@ -70,52 +71,66 @@ def rag_retrieve():
     auth_check = verify_auth_header(header_api_key)
     if auth_check != None:
         return auth_check
+    try:
+        prompt = request.args.get('prompt')
+        url = request.args.get('url')
+
+        print("Prompt: ", prompt)
+        print("Url: ", url)
+
+        # raw_query_embedding = embedding_client.embed(prompt, model="voyage-3-lite").tolist()
+        raw_query_embedding = embedding_client.embed(texts=prompt, model="voyage-3-lite").embeddings
+
+        print("raw_query_embedding: ", raw_query_embedding)
+
+
+        # Initalize Pinecone
+        pc = Pinecone(api_key=pinecone_api_key)
+
+        # Connect to Pinecone index
+        pinecone_index = pc.Index("llmeval")
+
+        # top_matches = pinecone_index.query(vector=raw_query_embedding.tolist(), top_k=5, include_metadata=True, namespace=url)
+        top_matches = pinecone_index.query(vector=raw_query_embedding, top_k=3, include_metadata=True, namespace=url)
+        
+
+        print("\n\n\n-------------Matches--------------\n\n\n")
+        print(top_matches)
+        print("\n\n\n---------------------------------------\n\n\n")
+
+        contexts = [item['metadata']['text'] for item in top_matches['matches']]
+
+        print("\n\n\n-------------Contexts--------------\n\n\n")
+        print(contexts)
+        print("\n\n\n---------------------------------------\n\n\n")
+
+        augmented_query = "<CONTEXT>\n" + "\n\n-----------\n\n".join(contexts[ : 10]) + "\n\n---------\n</CONTEXT>\n\n\n\nMY QUESTION:\n" + prompt
+
+        print("\n\n\n-------------AUGMENTED QUERY--------------\n\n\n")
+        print(augmented_query)
+        print("\n\n\n---------------------------------------\n\n\n")
+
+        rag_content = {
+            "augmented_query": augmented_query,
+            "retrieval_context": contexts
+        }
+
+        print("Rag content: ", rag_content)
+
+        response_body = {
+            "status": "success",
+            "code": 200,
+            "content": rag_content
+        }
+
+        return make_response(jsonify(response_body), 200)
     
-    prompt = request.args.get('prompt')
-    url = request.args.get('url')
-
-    print("Prompt: ", prompt)
-    print("Url: ", url)
-
-    raw_query_embedding = embedding_client.encode(prompt).tolist()
-
-    # Initalize Pinecone
-    pc = Pinecone(api_key=pinecone_api_key)
-
-    # Connect to Pinecone index
-    pinecone_index = pc.Index("llmeval")
-
-    # top_matches = pinecone_index.query(vector=raw_query_embedding.tolist(), top_k=5, include_metadata=True, namespace=url)
-    top_matches = pinecone_index.query(vector=raw_query_embedding, top_k=3, include_metadata=True, namespace=url)
-    
-
-    print("\n\n\n-------------Matches--------------\n\n\n")
-    print(top_matches)
-    print("\n\n\n---------------------------------------\n\n\n")
-
-    contexts = [item['metadata']['text'] for item in top_matches['matches']]
-
-    print("\n\n\n-------------Contexts--------------\n\n\n")
-    print(contexts)
-    print("\n\n\n---------------------------------------\n\n\n")
-
-    augmented_query = "<CONTEXT>\n" + "\n\n-----------\n\n".join(contexts[ : 10]) + "\n\n---------\n</CONTEXT>\n\n\n\nMY QUESTION:\n" + prompt
-
-    print("\n\n\n-------------AUGMENTED QUERY--------------\n\n\n")
-    print(augmented_query)
-    print("\n\n\n---------------------------------------\n\n\n")
-
-    rag_content = {
-        "augmented_query": augmented_query,
-        "retrieval_context": contexts
-    }
-
-    print("Rag content: ", rag_content)
-
-    response_body = {
-        "status": "success",
-        "code": 200,
-        "content": rag_content
-    }
-
-    return make_response(jsonify(response_body), 200)
+    except Exception as err:
+        print(f"Error for rag retrieval: {str(err)}")
+        
+        response_body = {
+            "status": "failure",
+            "error": f"Failed to rag retrieve {str(err)}"
+        }
+        
+        return make_response(jsonify(response_body), 500)
