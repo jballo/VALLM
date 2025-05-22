@@ -14,7 +14,7 @@ openai_client = OpenAI(
     api_key=Config.OPENAI_API_KEY
 )
 
-embedding_client = SentenceTransformer('all-MiniLM-L6-v2')
+embedding_client = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
 # embedding_client = SentenceTransformer("jinaai/jina-embeddings-v2-base-en", trust_remote_code=True)
 # embedding_client.max_seq_length = 768
 # embedding_client = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
