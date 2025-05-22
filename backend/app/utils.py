@@ -395,8 +395,8 @@ def generate_response(model, prompt, context, expected_output):
                         "content": prompt,
                     }
                 ],
-                model="gpt-4o-mini",
-                max_tokens=60
+                model="openai/gpt-4o-mini",
+                # max_tokens=60
             )
             gpt_response = gpt_completion.choices[0].message.content
             gpt_relevancy_scores = deepeval_relevancy_score(prompt, gpt_response, context, expected_output)
