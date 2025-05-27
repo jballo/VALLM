@@ -6,7 +6,8 @@ import Header from "@/components/header";
 export const metadata: Metadata = {
   title: "VaLLM",
   description: "Learn the LLM best for you.",
-  icons: "./VALLM_LOGO.png",
+  icons:
+    "https://gw3qhbh6tl.ufs.sh/f/Q48fIVJi2U4uBSKDllQILryJKSD3OdXv0UQio5Eaezxjcbhl",
 };
 
 export default function RootLayout({

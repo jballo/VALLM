@@ -32,6 +32,7 @@ export default function Header() {
           alt="VALLM Logo"
           width={50}
           height={50}
+          priority
         />
         <h1 className="text-3xl text-white">VALLM</h1>
       </div>
