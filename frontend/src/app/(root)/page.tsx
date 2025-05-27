@@ -216,7 +216,7 @@ export default function HomePage() {
             <Button variant="ghost">View Demo</Button>
           </div>
           <Image
-            src="https://gw3qhbh6tl.ufs.sh/f/Q48fIVJi2U4uSB9cV2CRrDV8YeXBQcRhHzCa70I4dbpgPoOG"
+            src="https://gw3qhbh6tl.ufs.sh/f/Q48fIVJi2U4uX1JVn6PedDnbZviLGjTysVUKoIxg8W1uB46F"
             alt="VALLM Dashboard"
             width={800}
             height={300}
