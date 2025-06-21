@@ -33,10 +33,7 @@ const OpenAI = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
-// export default OpenAI;
 
-// import * as React from "react";
-// import type { SVGProps } from "react";
 const Meta = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -84,10 +81,7 @@ const Meta = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
-// export default Meta;
 
-// import * as React from "react";
-// import type { SVGProps } from "react";
 const MistralAI = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -224,7 +218,7 @@ export default function HomePage() {
           />
         </div>
         {/* Key Features */}
-        <div className="flex flex-col w-screen bg-[#091931] gap-3">
+        <div className="flex flex-col w-full bg-[#091931] gap-3">
           <div className="flex flex-col justify-center w-full m-6">
             <h2 className="text-2xl text-center font-bold">Key Features</h2>
           </div>
@@ -318,7 +312,7 @@ export default function HomePage() {
           </div>
         </div>
         {/* Supported Models */}
-        <div className="w-screen flex flex-col items-center bg-[#091931] p-8">
+        <div className="w-full flex flex-col items-center bg-[#091931] p-8">
           <div className="flex flex-col p-6">
             <h2 className="text-2xl text-center font-bold">Supported Models</h2>
           </div>
@@ -380,7 +374,7 @@ export default function HomePage() {
           </div>
         </div>
         {/* Ready to Find Your Ideal LLM? */}
-        <div className="w-screen flex flex-col items-center gap-8 p-8">
+        <div className="w-full flex flex-col items-center gap-8 p-8">
           <div className="flex flex-col">
             <h2 className="text-2xl text-center font-bold">
               Ready to Find Your Ideal LLM?
@@ -400,6 +394,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
