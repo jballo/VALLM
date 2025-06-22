@@ -218,7 +218,7 @@ export default function HomePage() {
       </div>
       {/* Key Features */}
       <div className="flex flex-col w-full bg-[#091931] gap-3">
-        <div className="flex flex-col justify-center w-full m-6">
+        <div className="flex flex-col justify-center w-full p-6">
           <h2 className="text-2xl text-center font-bold">Key Features</h2>
         </div>
         <div className="grid grid-cols-3 gap-8 mx-6">

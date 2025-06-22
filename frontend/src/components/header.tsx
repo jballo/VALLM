@@ -25,7 +25,7 @@ export default function Header() {
   }, [user, isSignedIn]);
 
   return (
-    <div className="w-full flex flex-row justify-between">
+    <div className="w-full flex flex-row p-6 justify-between">
       <div className=" flex flex-row justify-center items-end gap-2">
         <Image
           src="https://gw3qhbh6tl.ufs.sh/f/Q48fIVJi2U4uBSKDllQILryJKSD3OdXv0UQio5Eaezxjcbhl"

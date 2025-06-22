@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ClerkProvider>
-          <div className="w-full min-h-screen bg-[#011627] text-white p-6">
+          <div className="w-full min-h-screen bg-[#011627] text-white">
             <Header />
             {children}
           </div>
