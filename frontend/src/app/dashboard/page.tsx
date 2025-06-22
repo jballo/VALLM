@@ -265,13 +265,16 @@ export default function DashboardPage() {
     <div className="w-full min-h-screen p-12 flex flex-col gap-6 bg-[#011627]">
       {/* <Header /> */}
       <div className="flex flex-row w-full h-full border-[1px] border-[#332E5C] rounded-xl">
-        <Sidebar
-          testCases={testCases}
-          addTestCase={addTestCase}
-          currentTestCase={currentTestCase}
-          setCurrentTestCase={setCurrentTestCase}
-          setTestCases={setTestCases}
-        />
+        <div className="flex flex-col flex-1">
+          <Sidebar
+            testCases={testCases}
+            addTestCase={addTestCase}
+            currentTestCase={currentTestCase}
+            setCurrentTestCase={setCurrentTestCase}
+            setTestCases={setTestCases}
+          />
+
+        </div>
         <div className="w-full">
           <div className="border-b-[1px] border-[#332E5C]">
             <PromptForm url={url} setUrl={setUrl} />
