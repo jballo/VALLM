@@ -57,7 +57,7 @@ export default function HomePage() {
         <div className="flex flex-col justify-center w-full p-6">
           <h2 className="text-2xl text-center font-bold">Key Features</h2>
         </div>
-        <div className="grid grid-cols-3 gap-8 mx-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mx-6">
           <div className="flex flex-col gap-2 border-[1px] rounded-xl border-[#312D5C] bg-[#15253C] p-8">
             <Globe className="w-12 h-12 bg-[#193649] text-[#37C5B3] p-3 rounded-md" />
             <h4 className="text-xl font-bold">URL Content Scraping</h4>
@@ -111,15 +111,15 @@ export default function HomePage() {
       {/* How It Works */}
       <div className="flex flex-col w-full justify-center  gap-8 p-6">
         <h2 className="text-2xl text-center font-bold">How It Works</h2>
-        <div className="flex flex-row justify-center gap-5">
-          <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-row flex-wrap justify-center gap-5">
+          <div className="flex flex-col items-center gap-2 w-full sm:w-80">
             <Globe className="w-12 h-12 text-[#37C5B3] bg-[#19364A] rounded-full p-3" />
             <h4 className="text-lg font-bold text-center">Enter a URL</h4>
             <p className="text-center">
               Provide a URL containing content you want to test LLMs against.
             </p>
           </div>
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-2 w-full sm:w-80">
             <MessageSquare className="w-12 h-12 text-[#37C5B3] bg-[#19364A] rounded-full p-3" />
             <h4 className="text-lg font-bold text-center">
               Create Test Cases
@@ -128,7 +128,7 @@ export default function HomePage() {
               Define prompts and expected outputs for your test scenarios.
             </p>
           </div>
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-2 w-full sm:w-80">
             <CircleCheckBig className="w-12 h-12 text-[#37C5B3] bg-[#19364A] rounded-full p-3" />
             <h4 className="text-lg font-bold text-center">Compare Results</h4>
             <p className="text-center">
@@ -151,7 +151,7 @@ export default function HomePage() {
         <div className="flex flex-col p-6">
           <h2 className="text-2xl text-center font-bold">Supported Models</h2>
         </div>
-        <div className="grid grid-cols-6 w-3/4 gap-14 p-7">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 w-full gap-14 p-7">
           <div className="text-center flex flex-col items-center bg-[#15253C] p-3 gap-4 rounded-md border-[0.5px] border-[#332E5C]">
             <div className="flex flex-col justify-center items-center bg-[#183243] text-[#0CA37F] w-10 h-10 rounded-[20px]">
               <OpenAI />
@@ -214,7 +214,7 @@ export default function HomePage() {
           <h2 className="text-2xl text-center font-bold">
             Ready to Find Your Ideal LLM?
           </h2>
-          <p>
+          <p className="text-center">
             Start testing and comparing language models today to make
             data-driven decisions for your AI applications.
           </p>
