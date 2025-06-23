@@ -214,7 +214,7 @@ export default function HomePage() {
           <h2 className="text-2xl text-center font-bold">
             Ready to Find Your Ideal LLM?
           </h2>
-          <p>
+          <p className="text-center">
             Start testing and comparing language models today to make
             data-driven decisions for your AI applications.
           </p>
