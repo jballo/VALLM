@@ -203,7 +203,7 @@ export default function HomePage() {
             </div>
             <div className="flex flex-col">
               <h4>LLAMA 3.1 8B Instant</h4>
-              <p>Mistral AI</p>
+              <p>Meta</p>
             </div>
           </div>
         </div>
