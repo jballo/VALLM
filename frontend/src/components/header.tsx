@@ -9,7 +9,7 @@ import {
 } from "@clerk/nextjs";
 import Image from "next/image";
 import { useEffect } from "react";
-import { Home, LayoutDashboard, Sparkle } from "lucide-react";
+import { DollarSign, Home, Sparkle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/atoms/button";
 
@@ -49,7 +49,7 @@ export default function Header() {
           className="flex flex-row gap-1.5 text-white"
           onClick={() => router.push("/pricing")}
         >
-          <LayoutDashboard /> Features
+          <DollarSign /> Pricing
         </Button>
         <Button
           variant="link"
