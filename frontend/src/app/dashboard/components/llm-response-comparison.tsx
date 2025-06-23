@@ -116,7 +116,7 @@ export default function LLMResponseComparison({
               />
             </TabsContent>
             <TabsContent value="results" className="text-white">
-              <div className="w-full flex flex-col p-4 gap-5">
+              <div className="w-full flex flex-col p-4 gap-5 min-h-[384px]">
                 {testCaseResults.filter((test) => test.id === currentTestCase)
                   .length === 1 ? (
                   <>
