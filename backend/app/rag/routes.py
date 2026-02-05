@@ -28,12 +28,13 @@ def generate_embeddings():
 
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=80,
+        chunk_size=512,
         chunk_overlap=20,
         separators=["\n\n", "\n", ".", " ", ""]
     )
 
     chunks = splitter.split_text(scraped_content)
+
     try:
 
 
@@ -63,7 +64,7 @@ def generate_embeddings():
         return make_response("Successfully embedded content", 200)
     except PineconeException as e:
         print(f"[api/v1/retrieval-augmented-generations/embed]: {e}")
-        return make_response("Pinecone error", 500);
+        return make_response("Pinecone error", 500)
     except Exception as e:
         print(f"[api/v1/retrieval-augmented-generations/embed]: {e}")
         return make_response("Failed to create embeddings", 500)
