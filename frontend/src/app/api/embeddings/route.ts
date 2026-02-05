@@ -43,7 +43,7 @@ export async function POST(req: Request) {
         "X-API-Key": process.env.API_KEY || "",
       },
       body: JSON.stringify({
-        content: scrape_result.content
+        content: scrape_result.content,
       }),
     });
 
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       throw new Error(`HTTP error! status: ${embed_response.status}`);
     }
 
-    const embed_result = await embed_response.json();
+    const embed_result = await embed_response.text();
     console.log("Embed result: ", embed_result);
 
     return NextResponse.json(
