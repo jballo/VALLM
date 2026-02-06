@@ -6,7 +6,6 @@ from pinecone import Pinecone
 from pinecone.exceptions import PineconeException
 from langchain.schema import Document
 from langchain_pinecone import PineconeVectorStore
-import os
 from app.config import Config
 from langchain_voyageai import VoyageAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -15,30 +14,25 @@ pinecone_api_key = Config.PINECONE_API_KEY
 
 @bp.route("/embed", methods=['POST'])
 def generate_embeddings():
-    print("/embed")
     header_api_key = request.headers.get('X-API-Key')
     auth_check = verify_auth_header(header_api_key)
     if auth_check != None:
         return auth_check
-    
-    url = request.args.get('url')
-    body = request.json
-    # scraped content is expected to be a string of markdown
-    scraped_content = body["content"]
-
-
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=512,
-        chunk_overlap=20,
-        separators=["\n\n", "\n", ".", " ", ""]
-    )
-
-    chunks = splitter.split_text(scraped_content)
 
     try:
+        url = request.args.get('url')
+        body = request.json
+        # scraped content is expected to be a string of markdown
+        scraped_content = body["content"]
 
 
-        pc = Pinecone(api_key=pinecone_api_key,)
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=512,
+            chunk_overlap=20,
+            separators=["\n\n", "\n", ".", " ", ""]
+        )
+
+        chunks = splitter.split_text(scraped_content)
         
         documents = []
         for sent_index, sent in enumerate(chunks):
@@ -48,7 +42,8 @@ def generate_embeddings():
                 metadata={
                     "source": source,
                     "chunk_index": sent_index,
-                    "total_chunks": len(sent)
+                    "chunk_length": len(sent),
+                    "total_chunks": len(chunks)
                 }
             )
             documents.append(doc)
@@ -62,6 +57,9 @@ def generate_embeddings():
         )
 
         return make_response("Successfully embedded content", 200)
+    except (ValueError, TypeError) as e:
+        print(f"[/api/v1/retrieval-augmented-generations/embed]: {e}")
+        return make_response("Bad request", 400)
     except PineconeException as e:
         print(f"[api/v1/retrieval-augmented-generations/embed]: {e}")
         return make_response("Pinecone error", 500)
