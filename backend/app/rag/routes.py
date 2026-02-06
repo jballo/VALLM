@@ -3,71 +3,69 @@ from app.rag import bp
 from app.utils import verify_auth_header
 from app.extensions import embedding_client
 from pinecone import Pinecone
+from pinecone.exceptions import PineconeException
 from langchain.schema import Document
 from langchain_pinecone import PineconeVectorStore
-import os
 from app.config import Config
 from langchain_voyageai import VoyageAIEmbeddings
-
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 pinecone_api_key = Config.PINECONE_API_KEY
 
 
 @bp.route("/embed", methods=['POST'])
 def generate_embeddings():
-    print("/embed")
     header_api_key = request.headers.get('X-API-Key')
     auth_check = verify_auth_header(header_api_key)
     if auth_check != None:
         return auth_check
-    
-    url = request.args.get('url')
-    body = request.json
-    print(f"--------------------------------\n\n\n")
-    print(f"body: {body}")
-    print(f"--------------------------------\n\n\n")
 
-    # scraped content is expected to be a string of markdown
-    scraped_content = body["content"]
-    print(f"scraped_content: {scraped_content}")
-    chunks = [sent.strip() for sent in scraped_content.split("\n\n") if sent.strip()]
+    try:
+        url = request.args.get('url')
+        body = request.json
+        # scraped content is expected to be a string of markdown
+        scraped_content = body["content"]
 
-    print(f"--------------------------------\n\n\n")
-    print(f"chunks: {chunks}")
 
-    # print("chunks: ")
-    # for sent in chunks:
-    #     print(sent, "\n")
-    pc = Pinecone(api_key=pinecone_api_key,)
-    pinecone_index = pc.Index("llmeval")
-    
-    documents = []
-    for sent_index, sent in enumerate(chunks):
-        source = f"""{url} sentence #: {sent_index}"""
-        doc = Document(
-            page_content=sent,
-            metadata={
-                "source": source,
-                "chunk_index": sent_index,
-                "total_chunks": len(sent)
-            }
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=512,
+            chunk_overlap=20,
+            separators=["\n\n", "\n", ".", " ", ""]
         )
-        documents.append(doc)
 
-    model_name = "voyage-3-lite"  # You can choose a different model
-    vectorstore = PineconeVectorStore.from_documents(
-        documents=documents,
-        embedding=VoyageAIEmbeddings(model=model_name, api_key=Config.VOYAGE_AI_KEY),
-        index_name="llmeval",
-        namespace=url
-    )
+        chunks = splitter.split_text(scraped_content)
+        
+        documents = []
+        for sent_index, sent in enumerate(chunks):
+            source = f"""{url} sentence #: {sent_index}"""
+            doc = Document(
+                page_content=sent,
+                metadata={
+                    "source": source,
+                    "chunk_index": sent_index,
+                    "chunk_length": len(sent),
+                    "total_chunks": len(chunks)
+                }
+            )
+            documents.append(doc)
 
-    response_body = {
-        "status": "success",
-        "code": 200,
-        "content": "Successfully embedded content from websites"
-    }
+        model_name = "voyage-3-lite"  # You can choose a different model
+        vectorstore = PineconeVectorStore.from_documents(
+            documents=documents,
+            embedding=VoyageAIEmbeddings(model=model_name, api_key=Config.VOYAGE_AI_KEY),
+            index_name="llmeval",
+            namespace=url
+        )
 
-    return make_response(jsonify(response_body), 200)
+        return make_response("Successfully embedded content", 200)
+    except (ValueError, TypeError) as e:
+        print(f"[/api/v1/retrieval-augmented-generations/embed]: {e}")
+        return make_response("Bad request", 400)
+    except PineconeException as e:
+        print(f"[api/v1/retrieval-augmented-generations/embed]: {e}")
+        return make_response("Pinecone error", 500)
+    except Exception as e:
+        print(f"[api/v1/retrieval-augmented-generations/embed]: {e}")
+        return make_response("Failed to create embeddings", 500)
 
 @bp.route("", methods=['POST'])
 def rag_retrieve():
