@@ -27,12 +27,14 @@ def generate_embeddings():
 
 
         splitter = RecursiveCharacterTextSplitter(
-            chunk_size=512,
-            chunk_overlap=20,
+            chunk_size=1024,
+            chunk_overlap=100,
             separators=["\n\n", "\n", ".", " ", ""]
         )
 
         chunks = splitter.split_text(scraped_content)
+        print(f"Num of chunks: {len(chunks)}")
+
         
         documents = []
         for sent_index, sent in enumerate(chunks):
@@ -42,11 +44,15 @@ def generate_embeddings():
                 metadata={
                     "source": source,
                     "chunk_index": sent_index,
-                    "chunk_length": len(sent),
                     "total_chunks": len(chunks)
                 }
             )
             documents.append(doc)
+
+        for doc in documents:
+            print(f"doc: {doc}\n")
+
+        print(f"number of documents: {len(documents)}")
 
         model_name = "voyage-3-lite"  # You can choose a different model
         vectorstore = PineconeVectorStore.from_documents(
