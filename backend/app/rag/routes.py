@@ -4,9 +4,7 @@ from app.utils import verify_auth_header
 from app.extensions import embedding_client
 from pinecone import Pinecone
 from pinecone.exceptions import PineconeException
-# from pinecone.grpc import PineconeGRPC as Pinecone
 from app.config import Config
-from langchain_voyageai import VoyageAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import uuid
 pinecone_api_key = Config.PINECONE_API_KEY
@@ -42,15 +40,15 @@ def generate_embeddings():
         pinecone_index = pc.Index("llmeval")
 
 
-        
+        values = embedding_client.embed(texts=chunks, model="voyage-3-lite").embeddings
+
         vectors = []
         for sent_index, sent in enumerate(chunks):
             source = f"""{url} sentence #: {sent_index}"""
             nId = uuid.uuid4()
-            raw_query_embedding = embedding_client.embed(texts=sent, model="voyage-3-lite").embeddings[0]
             oth = {
                 "id": str(nId),
-                "values": raw_query_embedding,
+                "values": values[sent_index],
                 "metadata": {
                     "text": sent,
                     "source": source,
