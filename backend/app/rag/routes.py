@@ -31,7 +31,6 @@ def generate_embeddings():
         )
 
         chunks = splitter.split_text(scraped_content)
-        print(f"Num of chunks: {len(chunks)}")
 
         # Initalize Pinecone
         pc = Pinecone(api_key=pinecone_api_key)
@@ -58,8 +57,7 @@ def generate_embeddings():
             }
             vectors.append(oth)
 
-        print(f"number of vectors: {len(vectors)}")
-        pinecone_index.upsert(vectors=vectors, namespace=url, batch_size=96)
+        pinecone_index.upsert(vectors=vectors, namespace=url, batch_size=96, show_progress=False)
 
 
         return make_response("Successfully embedded content", 200)
@@ -85,12 +83,7 @@ def rag_retrieve():
 
         print("Prompt: ", prompt)
         print("Url: ", url)
-
-        # raw_query_embedding = embedding_client.embed(prompt, model="voyage-3-lite").tolist()
         raw_query_embedding = embedding_client.embed(texts=prompt, model="voyage-3-lite").embeddings
-
-        print("raw_query_embedding: ", raw_query_embedding)
-
 
         # Initalize Pinecone
         pc = Pinecone(api_key=pinecone_api_key)
@@ -98,32 +91,16 @@ def rag_retrieve():
         # Connect to Pinecone index
         pinecone_index = pc.Index("llmeval")
 
-        # top_matches = pinecone_index.query(vector=raw_query_embedding.tolist(), top_k=5, include_metadata=True, namespace=url)
         top_matches = pinecone_index.query(vector=raw_query_embedding[0], top_k=3, include_metadata=True, namespace=url)
-        
-
-        print("\n\n\n-------------Matches--------------\n\n\n")
-        print(top_matches)
-        print("\n\n\n---------------------------------------\n\n\n")
 
         contexts = [item['metadata']['text'] for item in top_matches['matches']]
 
-        print("\n\n\n-------------Contexts--------------\n\n\n")
-        print(contexts)
-        print("\n\n\n---------------------------------------\n\n\n")
-
         augmented_query = "<CONTEXT>\n" + "\n\n-----------\n\n".join(contexts[ : 10]) + "\n\n---------\n</CONTEXT>\n\n\n\nMY QUESTION:\n" + prompt
-
-        print("\n\n\n-------------AUGMENTED QUERY--------------\n\n\n")
-        print(augmented_query)
-        print("\n\n\n---------------------------------------\n\n\n")
 
         rag_content = {
             "augmented_query": augmented_query,
             "retrieval_context": contexts
         }
-
-        print("Rag content: ", rag_content)
 
         response_body = {
             "status": "success",
