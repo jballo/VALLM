@@ -4,11 +4,11 @@ from app.utils import verify_auth_header
 from app.extensions import embedding_client
 from pinecone import Pinecone
 from pinecone.exceptions import PineconeException
-from langchain.schema import Document
-from langchain_pinecone import PineconeVectorStore
+# from pinecone.grpc import PineconeGRPC as Pinecone
 from app.config import Config
 from langchain_voyageai import VoyageAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+import uuid
 pinecone_api_key = Config.PINECONE_API_KEY
 
 
@@ -35,32 +35,34 @@ def generate_embeddings():
         chunks = splitter.split_text(scraped_content)
         print(f"Num of chunks: {len(chunks)}")
 
+        # Initalize Pinecone
+        pc = Pinecone(api_key=pinecone_api_key)
+
+        # Connect to Pinecone index
+        pinecone_index = pc.Index("llmeval")
+
+
         
-        documents = []
+        vectors = []
         for sent_index, sent in enumerate(chunks):
             source = f"""{url} sentence #: {sent_index}"""
-            doc = Document(
-                page_content=sent,
-                metadata={
+            nId = uuid.uuid4()
+            raw_query_embedding = embedding_client.embed(texts=sent, model="voyage-3-lite").embeddings[0]
+            oth = {
+                "id": str(nId),
+                "values": raw_query_embedding,
+                "metadata": {
+                    "text": sent,
                     "source": source,
                     "chunk_index": sent_index,
                     "total_chunks": len(chunks)
                 }
-            )
-            documents.append(doc)
+            }
+            vectors.append(oth)
 
-        for doc in documents:
-            print(f"doc: {doc}\n")
+        print(f"number of vectors: {len(vectors)}")
+        pinecone_index.upsert(vectors=vectors, namespace=url, batch_size=96)
 
-        print(f"number of documents: {len(documents)}")
-
-        model_name = "voyage-3-lite"  # You can choose a different model
-        vectorstore = PineconeVectorStore.from_documents(
-            documents=documents,
-            embedding=VoyageAIEmbeddings(model=model_name, api_key=Config.VOYAGE_AI_KEY),
-            index_name="llmeval",
-            namespace=url
-        )
 
         return make_response("Successfully embedded content", 200)
     except (ValueError, TypeError) as e:
@@ -99,7 +101,7 @@ def rag_retrieve():
         pinecone_index = pc.Index("llmeval")
 
         # top_matches = pinecone_index.query(vector=raw_query_embedding.tolist(), top_k=5, include_metadata=True, namespace=url)
-        top_matches = pinecone_index.query(vector=raw_query_embedding, top_k=3, include_metadata=True, namespace=url)
+        top_matches = pinecone_index.query(vector=raw_query_embedding[0], top_k=3, include_metadata=True, namespace=url)
         
 
         print("\n\n\n-------------Matches--------------\n\n\n")
