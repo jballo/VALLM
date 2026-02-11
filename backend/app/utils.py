@@ -1,6 +1,7 @@
 import os
 # os.environ['DEEPEVAL_TELEMETRY_OPTOUT'] = 'YES'
 # os.environ['DEEPEVAL_TELEMETRY_ENABLED'] = 'False'
+# os.environ['DEEPEVAL_NO_BANNER']="0"
 
 import json
 from flask import make_response, jsonify
@@ -14,7 +15,6 @@ from deepeval.metrics import ToxicityMetric
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import GEval
 from deepeval.test_case import LLMTestCaseParams
-from deepeval.dataset import EvaluationDataset
 from deepeval.evaluate import CacheConfig, DisplayConfig
 import groq
 from deepeval.models import GeminiModel
@@ -25,7 +25,6 @@ api_key = Config.API_KEY
 
 # Method to verify API key for authorization
 def verify_auth_header(header_api_key):
-        print("Testing authorization.")
         if (header_api_key != api_key):
             print("Unauthorized request")
             response_body = {
@@ -99,10 +98,12 @@ def deepeval_relevancy_score (prompt, actual_output, retrieval_context, expected
             use_cache=False
         ),
         display_config=DisplayConfig(
-            print_results=False
-        )
+            print_results=False,
+            show_indicator=False,
+            file_output_dir=None,
+        ),
     )
-    # print("result: ", result.test_results)
+
     contextual_results = []
     answer_results = []
     bias_results = []
@@ -111,7 +112,6 @@ def deepeval_relevancy_score (prompt, actual_output, retrieval_context, expected
 
     for res in result.test_results:
         for metric in res.metrics_data:
-            print("Metric: ", metric)
             if metric.name == "Contextual Relevancy":
                 contextual_results.append(metric.score)
             elif metric.name == "Answer Relevancy":
@@ -129,13 +129,6 @@ def deepeval_relevancy_score (prompt, actual_output, retrieval_context, expected
     toxicity_score = sum(toxicity_results) / len(toxicity_results) if toxicity_results else 0
     correctness_score = sum(correctness_results) / len(correctness_results) if correctness_results else 0
 
-    print("Contextual relevancy success rate: ", contextual_score)
-    print("Answer relevancy success rate: ", answer_score)
-    print("Bias success rate: ", bias_score)
-    print("Toxicit succcess rate: ", toxicity_score)
-    print("Correctness success rate: ", correctness_score)
-
-    ("\n\n\n\n----------------------------------\n\n\n\n")
     return {
         "contextual_success_rate": contextual_score,
         "answer_success_rate": answer_score,
@@ -149,7 +142,6 @@ def deepeval_relevancy_score (prompt, actual_output, retrieval_context, expected
 
 def generate_response(model, prompt, context, expected_output):
     """Generate response from LLM"""
-    print("Generating response...")
 
     system_prompt = f"""
     I will provide you with information about a company's website, including sections like product pages, landing pages, FAQs, 'Contact Us,' pricing tables, testimonials, blogs, case studies, careers, company history, and more. Your task is to:
@@ -272,7 +264,6 @@ def generate_response(model, prompt, context, expected_output):
 
     try:
 
-        print("\n\n\n\nmodel: ", model)
         model_name = model
         model_response = ""
         contextual_relevancy_score = 0
@@ -327,7 +318,6 @@ def generate_response(model, prompt, context, expected_output):
             )
             llama_instant_response = llama_instant_completion.choices[0].message.content
             llama_instant_relevancy_scores = deepeval_relevancy_score(prompt, llama_instant_response, context, expected_output)
-            print("llama_instant_relevancy_scores: ", llama_instant_relevancy_scores)
             model_response = llama_instant_response
             contextual_relevancy_score = llama_instant_relevancy_scores["contextual_success_rate"]
             answer_relevancy_score = llama_instant_relevancy_scores["answer_success_rate"]
